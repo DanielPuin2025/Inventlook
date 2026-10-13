@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregar Categoría - InventLook</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
+        body { background: #F8FAFC; display: flex; min-height: 100vh; color: #0F172A; }
+        .barra-lateral {
+            width: 240px; min-width: 240px;
+            background: linear-gradient(180deg, #1E5F8C 0%, #2B6CB0 100%);
+            color: white; padding: 24px 16px;
+            display: flex; flex-direction: column;
+            position: fixed; height: 100vh;
+        }
+        .logo-menu { display: flex; align-items: center; gap: 12px; padding-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,0.15); margin-bottom: 20px; }
+        .logo-il-menu {
+            width: 40px; height: 40px; background: white; color: #1E5F8C; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px;
+            background-image: url('/img/logo-principal.png.png');
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            color: transparent; font-size: 0;
+        }
+        .texto-logo-menu strong { font-size: 18px; display: block; letter-spacing: 0.5px; }
+        .texto-logo-menu span { font-size: 10px; opacity: 0.8; letter-spacing: 1px; }
+        .opcion-menu { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; color: white; text-decoration: none; font-size: 15px; margin-bottom: 6px; opacity: 0.9; }
+        .opcion-menu:hover { background: rgba(255,255,255,0.15); opacity: 1; }
+        .opcion-menu.activa { background: rgba(255,255,255,0.2); border-left: 3px solid white; font-weight: 600; opacity: 1; }
+        .icono-img {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+            flex-shrink: 0;
+        }
+        .contenido-principal { margin-left: 240px; flex: 1; display: flex; flex-direction: column; }
+        .barra-superior {
+            display: flex; justify-content: space-between; align-items: center; gap: 24px;
+            background: white; padding: 18px 32px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .usuario-superior {
+            display: flex; align-items: center; gap: 12px; position: relative; cursor: pointer; padding: 6px 10px; border-radius: 12px; transition: background 0.2s ease;
+        }
+        .usuario-superior:hover { background: #F1F5F9; }
+        .datos-usuario { display: flex; flex-direction: column; text-align: right; line-height: 1.3; }
+        .datos-usuario strong { font-size: 14px; text-transform: capitalize; color: #0F172A; font-weight: 600; }
+        .datos-usuario span { font-size: 11px; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; }
+        .avatar-usuario {
+            width: 42px; height: 42px; background: linear-gradient(135deg, #2B6CB0 0%, #1E5F8C 100%); color: white;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0;
+        }
+        .menu-usuario {
+            position: absolute; top: calc(100% + 10px); right: 0;
+            background: white; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            padding: 8px; min-width: 180px; display: none; z-index: 999; border: 1px solid #E2E8F0;
+        }
+        .usuario-superior:hover .menu-usuario { display: block; }
+        .menu-usuario a {
+            display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+            color: #DC2626; text-decoration: none; font-size: 14px; font-weight: 500; border-radius: 8px; transition: background 0.15s ease;
+        }
+        .menu-usuario a:hover { background: #FEF2F2; }
+        .area-trabajo { padding: 32px; max-width: 600px; margin: 0 auto; width: 100%; }
+        .encabezado { margin-bottom: 28px; }
+        .encabezado h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+        .encabezado p { color: #64748B; font-size: 15px; }
+        .formulario {
+            background: white; border-radius: 14px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .grupo-form { margin-bottom: 20px; }
+        .grupo-form label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #334155; }
+        .grupo-form input {
+            width: 100%; padding: 12px 16px; border: 1px solid #CBD5E1; border-radius: 10px;
+            font-size: 15px; background: #FAFBFC; transition: border 0.2s ease;
+        }
+        .grupo-form input:focus { outline: none; border-color: #2B6CB0; box-shadow: 0 0 0 3px rgba(43,108,176,0.1); }
+        .botones { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+        .btn-guardar {
+            padding: 12px 24px; background: #1E5F8C; color: white; border: none; border-radius: 10px;
+            font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s ease;
+        }
+        .btn-guardar:hover { background: #1A527A; }
+        .btn-cancelar {
+            padding: 12px 24px; background: #E2E8F0; color: #475569; border: none; border-radius: 10px;
+            font-size: 15px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; transition: background 0.2s ease;
+        }
+        .btn-cancelar:hover { background: #CBD5E1; }
+        .mensaje-error {
+            padding: 12px; background: #FEF2F2; color: #991B1B; border-radius: 8px; margin-bottom: 20px; font-size: 14px;
+        }
+
+        /* =============================================
+           ✅ CUADRITO DE CONFIRMACIÓN AL GUARDAR
+           ============================================= */
+        .fondo-confirmacion {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+        }
+        .fondo-confirmacion.activo { display: flex; }
+        .modal-confirmacion {
+            background: #374151;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            overflow: hidden;
+            animation: modalAparecer 0.25s ease;
+        }
+        @keyframes modalAparecer {
+            from { opacity: 0; transform: translateY(-20px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .modal-confirmacion-cuerpo {
+            padding: 32px 28px 24px;
+            text-align: center;
+        }
+        .icono-alerta {
+            width: 56px; height: 56px;
+            background: rgba(34, 197, 94, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 28px;
+        }
+        .modal-confirmacion h3 {
+            color: #FFFFFF;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .modal-confirmacion p {
+            color: #D1D5DB;
+            font-size: 14px;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+        .modal-confirmacion-botones {
+            display: flex;
+            gap: 12px;
+            padding: 0 28px 28px;
+        }
+        .btn-cancelar-conf {
+            flex: 1;
+            padding: 12px;
+            background: #DC2626;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-cancelar-conf:hover { background: #B91C1C; }
+        .btn-aceptar-conf {
+            flex: 1;
+            padding: 12px;
+            background: #16A34A;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-aceptar-conf:hover { background: #15803D; }
+    </style>
+</head>
+<body>
+    <aside class="barra-lateral">
+        <div class="logo-menu">
+            <div class="logo-il-menu">IL</div>
+            <div class="texto-logo-menu">
+                <strong>INVENTLOOK</strong>
+                <span>MERCA MAX</span>
+            </div>
+        </div>
+        <a href="/dashboard" class="opcion-menu">
+            <img src="/img/menu.png" alt="Menú" class="icono-img">
+            Menú Principal
+        </a>
+        <a href="/productos" class="opcion-menu">
+            <img src="/img/productos.png" alt="Productos" class="icono-img">
+            Productos
+        </a>
+        <a href="/categorias" class="opcion-menu activa">
+            <img src="/img/categorias.png" alt="Categorías" class="icono-img">
+            Categorías
+        </a>
+        <a href="/movimientos" class="opcion-menu">
+            <img src="/img/movimientos.png" alt="Movimientos" class="icono-img">
+            Movimientos
+        </a>
+        <a href="/alertas" class="opcion-menu">
+            <img src="/img/alertas.png" alt="Alertas" class="icono-img">
+            Alertas
+        </a>
+        <a href="/cuentas" class="opcion-menu" th:if="${session.rolUsuario == 'ADMINISTRADOR'}">
+            <img src="/img/icono-usuario.png" alt="Cuentas" class="icono-img">
+            Cuentas
+        </a>
+    </aside>
+    <main class="contenido-principal">
+        <header class="barra-superior">
+            <div></div>
+            <div class="usuario-superior">
+                <div class="datos-usuario">
+                    <strong th:text="${session.nombreUsuario != null ? session.nombreUsuario : 'Usuario'}">Tu Nombre</strong>
+                    <span th:text="${session.rolUsuario != null ? session.rolUsuario : 'USUARIO'}">ADMINISTRADOR</span>
+                </div>
+                <div class="avatar-usuario" th:text="${session.nombreUsuario != null ? #strings.substring(#strings.toUpperCase(session.nombreUsuario), 0, 2) : 'US'}">DA</div>
+                <div class="menu-usuario">
+                    <a href="/logout">🚪 Cerrar sesión</a>
+                </div>
+            </div>
+        </header>
+        <section class="area-trabajo">
+            <div class="encabezado">
+                <h1>Agregar Nueva Categoría</h1>
+                <p>Escribe el nombre de la categoría para organizar tus productos.</p>
+            </div>
+            <div th:if="${param.error == 'duplicado'}" class="mensaje-error">
+                ❌ Ya existe una categoría con ese nombre, usa otro diferente.
+            </div>
+            <form id="formCategoria" class="formulario" th:action="'/guardar-categoria'" method="post">
+                <div class="grupo-form">
+                    <label for="nombreCategoria">Nombre de la Categoría *</label>
+                    <input type="text" id="nombreCategoria" name="nombreCategoria" required placeholder="Ej: Abarrotes, Lácteos, Limpieza...">
+                </div>
+                <div class="botones">
+                    <button type="button" class="btn-guardar" onclick="abrirConfirmacion()">✅ Guardar Categoría</button>
+                    <a href="/categorias" class="btn-cancelar">↩️ Cancelar</a>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <!-- ✅ CUADRITO DE CONFIRMACIÓN -->
+    <div class="fondo-confirmacion" id="modalConfirmacion" onclick="cerrarConfirmacionFuera(event)">
+        <div class="modal-confirmacion">
+            <div class="modal-confirmacion-cuerpo">
+                <div class="icono-alerta">ℹ️</div>
+                <h3>¿Guardar esta categoría?</h3>
+                <p>Se creará la categoría con el nombre que escribiste. ¿Estás de acuerdo?</p>
+            </div>
+            <div class="modal-confirmacion-botones">
+                <button class="btn-cancelar-conf" onclick="cerrarConfirmacion()">Cancelar</button>
+                <button class="btn-aceptar-conf" onclick="confirmarGuardado()">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ✅ Abrir el cuadrito al darle Guardar
+        function abrirConfirmacion() {
+            const nombre = document.getElementById('nombreCategoria').value.trim();
+            if (!nombre) {
+                alert('Escribe el nombre de la categoría primero');
+                return;
+            }
+            document.getElementById('modalConfirmacion').classList.add('activo');
+        }
+
+        // ✅ Cerrar cuadrito
+        function cerrarConfirmacion() {
+            document.getElementById('modalConfirmacion').classList.remove('activo');
+        }
+
+        // ✅ Cerrar al dar clic afuera
+        function cerrarConfirmacionFuera(event) {
+            if (event.target.id === 'modalConfirmacion') cerrarConfirmacion();
+        }
+
+        // ✅ Si dice que SÍ → guardar de verdad
+        function confirmarGuardado() {
+            document.getElementById('formCategoria').submit();
+        }
+
+        // ✅ Cerrar con tecla ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') cerrarConfirmacion();
+        });
+    </script>
+</body>
+</html>

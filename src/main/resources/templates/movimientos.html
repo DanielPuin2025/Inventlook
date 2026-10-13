@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movimientos - InventLook</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
+        body { background: #F8FAFC; display: flex; min-height: 100vh; color: #0F172A; }
+        .barra-lateral {
+            width: 240px; min-width: 240px;
+            background: linear-gradient(180deg, #1E5F8C 0%, #2B6CB0 100%);
+            color: white; padding: 24px 16px;
+            display: flex; flex-direction: column;
+            position: fixed; height: 100vh;
+        }
+        .logo-menu { display: flex; align-items: center; gap: 12px; padding-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,0.15); margin-bottom: 20px; }
+        .logo-il-menu {
+            width: 40px; height: 40px; background: white; color: #1E5F8C; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px;
+            background-image: url('/img/logo-principal.png.png');
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            color: transparent; font-size: 0;
+        }
+        .texto-logo-menu strong { font-size: 18px; display: block; letter-spacing: 0.5px; }
+        .texto-logo-menu span { font-size: 10px; opacity: 0.8; letter-spacing: 1px; }
+        .opcion-menu { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; color: white; text-decoration: none; font-size: 15px; margin-bottom: 6px; opacity: 0.9; }
+        .opcion-menu:hover { background: rgba(255,255,255,0.15); opacity: 1; }
+        .opcion-menu.activa { background: rgba(255,255,255,0.2); border-left: 3px solid white; font-weight: 600; opacity: 1; }
+        .icono-img {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+            flex-shrink: 0;
+        }
+        .contenido-principal { margin-left: 240px; flex: 1; display: flex; flex-direction: column; }
+        .barra-superior {
+            display: flex; justify-content: flex-end; align-items: center; gap: 24px;
+            background: white; padding: 18px 32px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .usuario-superior {
+            display: flex; align-items: center; gap: 12px; position: relative;
+            cursor: pointer; padding: 6px 10px; border-radius: 12px;
+            transition: background 0.2s ease;
+        }
+        .usuario-superior:hover { background: #F1F5F9; }
+        .datos-usuario {
+            display: flex; flex-direction: column;
+            text-align: right;
+            line-height: 1.3;
+            justify-content: center;
+        }
+        .datos-usuario strong {
+            font-size: 14px;
+            text-transform: capitalize;
+            color: #0F172A;
+            font-weight: 600;
+        }
+        .datos-usuario span {
+            font-size: 11px;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+        .avatar-usuario {
+            width: 42px; height: 42px;
+            background: linear-gradient(135deg, #2B6CB0 0%, #1E5F8C 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 14px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(43, 108, 176, 0.3);
+        }
+        .menu-usuario {
+            position: absolute; top: calc(100% + 10px); right: 0;
+            background: #374151;
+            border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            padding: 8px; min-width: 180px; display: none; z-index: 999; border: 1px solid #4B5563;
+        }
+        .usuario-superior.abierto .menu-usuario { display: block; }
+        .menu-usuario a {
+            display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+            color: #FFFFFF;
+            text-decoration: none; font-size: 14px; font-weight: 500;
+            border-radius: 8px; transition: background 0.15s ease;
+        }
+        .menu-usuario a:hover { background: #4B5563; }
+        .area-trabajo { padding: 32px; }
+        .encabezado-seccion { margin-bottom: 28px; }
+        .encabezado-seccion h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+        .encabezado-seccion p { color: #64748B; font-size: 15px; }
+        .aviso-24h {
+            background: #DBEAFE;
+            border: 1px solid #93C5FD;
+            color: #1E40AF;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .tabla-contenedor {
+            background: white; border-radius: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border: 1px solid #E2E8F0; overflow: hidden;
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        thead {
+            background: #F8FAFC; color: #64748B; text-transform: uppercase;
+            font-size: 12px; letter-spacing: 0.5px;
+        }
+        th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #F1F5F9; vertical-align: middle; }
+        th { font-weight: 600; }
+        /* === ANCHOS FIJOS IGUALES PARA TODO === */
+        .col-fecha   { width: 12%; }
+        .col-tipo    { width: 10%; text-align: center; }
+        .col-producto{ width: 20%; }
+        .col-cantidad{ width: 8%;  text-align: center; }
+        .col-usuario { width: 14%; }
+        .col-obs     { width: 31%; }
+        .col-flecha  { width: 5%;  text-align: center; }
+        tbody tr:hover { background: #F8FAFC; }
+        .tipo { display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; white-space: nowrap; }
+        .tipo.entrada { background: #D1FAE5; color: #065F46; }
+        .tipo.salida { background: #FEE2E2; color: #991B1B; }
+        .tipo.ajuste { background: #FEF3C7; color: #92400E; }
+        .sin-datos { padding: 40px; text-align: center; color: #64748B; font-size: 15px; }
+        .fila-desplegable { display: none; background: #FAFBFC; }
+        .fila-desplegable.activo { display: table-row; }
+        .fila-desplegable td { padding: 0; border: none; }
+        .fila-desplegable .fila-interna td { padding: 12px 16px; border-bottom: 1px solid #F1F5F9; }
+        .triangulo {
+            display: inline-block;
+            width: 0; height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 8px solid #64748B;
+            transition: transform 0.2s ease;
+            cursor: pointer;
+        }
+        .triangulo.abierto { transform: rotate(180deg); }
+        .etiqueta-fecha {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #EFF6FF;
+            color: #1E40AF;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .hora-texto { color: #64748B; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <aside class="barra-lateral">
+        <div class="logo-menu">
+            <div class="logo-il-menu">IL</div>
+            <div class="texto-logo-menu">
+                <strong>INVENTLOOK</strong>
+                <span>MERCA MAX</span>
+            </div>
+        </div>
+        <a href="/dashboard" class="opcion-menu">
+            <img src="/img/menu.png" alt="Menú" class="icono-img">
+            Menú Principal
+        </a>
+        <a href="/productos" class="opcion-menu">
+            <img src="/img/productos.png" alt="Productos" class="icono-img">
+            Productos
+        </a>
+        <a href="/categorias" class="opcion-menu">
+            <img src="/img/categorias.png" alt="Categorías" class="icono-img">
+            Categorías
+        </a>
+        <a href="/movimientos" class="opcion-menu activa">
+            <img src="/img/movimientos.png" alt="Movimientos" class="icono-img">
+            Movimientos
+        </a>
+        <a href="/alertas" class="opcion-menu">
+            <img src="/img/alertas.png" alt="Alertas" class="icono-img">
+            Alertas
+        </a>
+        <a href="/cuentas" class="opcion-menu" th:if="${session.rolUsuario == 'ADMINISTRADOR'}">
+            <img src="/img/icono-usuario.png" alt="Cuentas" class="icono-img">
+            Cuentas
+        </a>
+        <a href="/registro" class="opcion-menu" th:if="${session.rolUsuario == 'ADMINISTRADOR'}">
+            <img src="/img/registro.png" alt="Registro" class="icono-img">
+            Registro
+        </a>
+    </aside>
+    <main class="contenido-principal">
+        <header class="barra-superior">
+            <div class="usuario-superior" id="areaUsuario" onclick="alternarMenu()">
+                <div class="datos-usuario">
+                    <strong th:text="${session.nombreUsuario != null ? session.nombreUsuario : 'Usuario'}">Tu Nombre</strong>
+                    <span th:text="${session.rolUsuario != null ? session.rolUsuario : 'USUARIO'}">ADMINISTRADOR</span>
+                </div>
+                <div class="avatar-usuario"
+                     th:text="${session.nombreUsuario != null ? #strings.substring(#strings.toUpperCase(session.nombreUsuario), 0, 2) : 'US'}">DA</div>
+                <div class="menu-usuario" id="menuUsuario">
+                    <a href="/logout">Cerrar sesión</a>
+                </div>
+            </div>
+        </header>
+        <section class="area-trabajo">
+            <div class="encabezado-seccion">
+                <h1>Historial de Movimientos</h1>
+                <p>Registro completo de todas las entradas, salidas y ajustes del inventario.</p>
+            </div>
+            <div class="aviso-24h">
+                <span>i</span>
+                <span><strong>Importante:</strong> Los movimientos se guardan automaticamente y se eliminan despues de 8 dias.</span>
+            </div>
+            <div class="tabla-contenedor">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="col-fecha">Fecha - Hora</th>
+                            <th class="col-tipo">Tipo</th>
+                            <th class="col-producto">Producto</th>
+                            <th class="col-cantidad">Cantidad</th>
+                            <th class="col-usuario">Usuario</th>
+                            <th class="col-obs">Observacion</th>
+                            <th class="col-flecha"></th>
+                        </tr>
+                    </thead>
+                    <tbody th:if="${movimientosPorFecha == null or #lists.isEmpty(movimientosPorFecha)}">
+                        <tr><td colspan="7" class="sin-datos">Aun no hay movimientos</td></tr>
+                    </tbody>
+                    <!-- ✅ SOLUCION: Un solo bloque que envuelve fila principal + su desplegable -->
+                    <tbody th:if="${movimientosPorFecha != null and not #lists.isEmpty(movimientosPorFecha)}">
+                        <th:block th:each="entrada, estado : ${movimientosPorFecha}">
+                            <!-- FILA PRINCIPAL (siempre visible) -->
+                            <tr>
+                                <td class="col-fecha">
+                                    <span class="etiqueta-fecha" th:text="${#temporals.format(entrada.key, 'dd/MM/yyyy')}">14/09/2026</span>
+                                </td>
+                                <td class="col-tipo">
+                                    <span class="tipo"
+                                          th:classappend="${entrada.value[0].tipoMovimiento == 'ENTRADA'} ? 'entrada' :
+                                              (${entrada.value[0].tipoMovimiento == 'SALIDA'} ? 'salida' : 'ajuste')"
+                                          th:text="${entrada.value[0].tipoMovimiento}">AJUSTE</span>
+                                </td>
+                                <td class="col-producto" th:text="${entrada.value[0].nombreProducto}">Nombre del producto</td>
+                                <td class="col-cantidad" th:text="${entrada.value[0].cantidad}">0</td>
+                                <td class="col-usuario" th:text="${entrada.value[0].usuario != null and entrada.value[0].usuario.nombre != null ? entrada.value[0].usuario.nombre : 'Usuario'}">Usuario</td>
+                                <td class="col-obs" th:text="${entrada.value[0].observacion != null and not entrada.value[0].observacion.isBlank() ? entrada.value[0].observacion : '—'}">Observacion</td>
+                                <td class="col-flecha">
+                                    <span class="triangulo"
+                                          th:if="${#lists.size(entrada.value) > 1}"
+                                          th:onclick="|alternarDesplegable('desplegable-${estado.index}', this)|"></span>
+                                </td>
+                            </tr>
+                            <!-- SU FILA DESPLEGABLE, JUSTO DEBAJO (no se separa) -->
+                            <tr class="fila-desplegable" th:id="'desplegable-' + ${estado.index}" th:if="${#lists.size(entrada.value) > 1}">
+                                <td colspan="7" style="padding:0; border:none;">
+                                    <table style="width:100%; border-collapse: collapse;">
+                                        <tbody>
+                                            <tr class="fila-interna" th:each="mov : ${entrada.value}">
+                                                <td class="col-fecha hora-texto" th:text="${#temporals.format(mov.fechaHora, 'HH:mm')}">14:16</td>
+                                                <td class="col-tipo">
+                                                    <span class="tipo"
+                                                          th:classappend="${mov.tipoMovimiento == 'ENTRADA'} ? 'entrada' :
+                                                              (${mov.tipoMovimiento == 'SALIDA'} ? 'salida' : 'ajuste')"
+                                                          th:text="${mov.tipoMovimiento}">AJUSTE</span>
+                                                </td>
+                                                <td class="col-producto" th:text="${mov.nombreProducto}">Nombre del producto</td>
+                                                <td class="col-cantidad" th:text="${mov.cantidad}">0</td>
+                                                <td class="col-usuario" th:text="${mov.usuario != null and mov.usuario.nombre != null ? mov.usuario.nombre : 'Usuario'}">Usuario</td>
+                                                <td class="col-obs" th:text="${mov.observacion != null and not mov.observacion.isBlank() ? mov.observacion : '—'}">Observacion</td>
+                                                <td class="col-flecha"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        </th:block>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    <script>
+        function alternarMenu() {
+            const area = document.getElementById('areaUsuario');
+            area.classList.toggle('abierto');
+        }
+        document.addEventListener('click', function(event) {
+            const area = document.getElementById('areaUsuario');
+            if (!area.contains(event.target)) {
+                area.classList.remove('abierto');
+            }
+        });
+        function alternarDesplegable(id, elem) {
+            const fila = document.getElementById(id);
+            if (fila) {
+                fila.classList.toggle('activo');
+                elem.classList.toggle('abierto');
+            }
+        }
+    </script>
+</body>
+</html>

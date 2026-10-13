@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Principal - InventLook</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
+        body { background: #F8FAFC; color: #0F172A; display: flex; min-height: 100vh; }
+        .barra-lateral {
+            width: 240px; min-width: 240px;
+            background: linear-gradient(180deg, #1E5F8C 0%, #2B6CB0 100%);
+            color: white; padding: 24px 16px; display: flex; flex-direction: column; position: fixed; height: 100vh;
+        }
+        .logo-menu { display: flex; align-items: center; gap: 12px; padding-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,0.15); margin-bottom: 20px; }
+        .logo-il-menu {
+            width: 40px; height: 40px; background: white; color: #1E5F8C; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px;
+            background-image: url('/img/logo-principal.png.png');
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            color: transparent; font-size: 0;
+        }
+        .texto-logo-menu { display: flex; flex-direction: column; }
+        .texto-logo-menu strong { font-size: 18px; letter-spacing: 0.5px; }
+        .texto-logo-menu span { font-size: 10px; opacity: 0.8; letter-spacing: 1px; }
+        .opcion-menu { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; color: white; text-decoration: none; font-size: 15px; font-weight: 500; margin-bottom: 6px; transition: all 0.2s; opacity: 0.9; }
+        .opcion-menu:hover { background: rgba(255,255,255,0.15); opacity: 1; }
+        .opcion-menu.activa { background: rgba(255,255,255,0.2); opacity: 1; font-weight: 600; border-left: 3px solid white; }
+        .icono-menu { font-size: 18px; width: 22px; text-align: center; }
+        .icono-img {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+            flex-shrink: 0;
+        }
+        .contenido-principal { margin-left: 240px; flex: 1; display: flex; flex-direction: column; }
+        .barra-superior { background: white; padding: 18px 32px; display: flex; justify-content: flex-end; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        
+        .usuario-superior { 
+            display: flex; align-items: center; gap: 12px; 
+            position: relative; cursor: pointer; 
+            padding: 6px 10px; border-radius: 12px; 
+            transition: background 0.2s;
+        }
+        .usuario-superior:hover { background: #F1F5F9; }
+        
+        .avatar-usuario { 
+            width: 42px; height: 42px; 
+            background: linear-gradient(135deg, #2B6CB0 0%, #1E5F8C 100%); 
+            color: white; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            font-weight: 700; font-size: 14px; flex-shrink: 0; 
+            box-shadow: 0 2px 6px rgba(43,108,176,0.3); 
+        }
+        .datos-usuario { 
+            display: flex; flex-direction: column; 
+            text-align: right; line-height: 1.3; justify-content: center; 
+        }
+        .datos-usuario strong { font-size: 14px; color: #0F172A; font-weight: 600; text-transform: capitalize; }
+        .datos-usuario span { font-size: 11px; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; }
+        
+        .menu-usuario { 
+            position: absolute; top: calc(100% + 10px); right: 0; 
+            background: #374151;
+            border-radius: 12px; 
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25); 
+            padding: 8px; min-width: 180px; 
+            display: none; z-index: 999; 
+            border: 1px solid #4B5563;
+        }
+        
+        .usuario-superior.abierto .menu-usuario { display: block; }
+        
+        .menu-usuario a { 
+            display: flex; align-items: center; gap: 10px; 
+            padding: 12px 14px; 
+            color: #FFFFFF;
+            text-decoration: none; font-size: 14px; font-weight: 500; 
+            border-radius: 8px; transition: background 0.15s; 
+        }
+        .menu-usuario a:hover { 
+            background: #4B5563;
+        }
+        .area-trabajo { padding: 32px; }
+        .bienvenida h1 { font-size: 28px; font-weight: 700; color: #0F172A; margin-bottom: 6px; }
+        .bienvenida p { color: #64748B; font-size: 15px; margin-bottom: 28px; }
+        .grid-tarjetas { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+        .tarjeta-resumen { background: white; padding: 22px; border-radius: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid #E2E8F0; transition: transform 0.2s; }
+        .tarjeta-resumen:hover { transform: translateY(-3px); }
+        .tarjeta-resumen .etiqueta { font-size: 13px; color: #64748B; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+        .tarjeta-resumen .valor { font-size: 32px; font-weight: 700; color: #0F172A; margin-bottom: 14px; }
+        .barra-progreso { height: 6px; background: #E2E8F0; border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+        .barra-progreso .relleno { height: 100%; border-radius: 10px; }
+        .relleno.azul { background: #60A5D1; width: 60%; }
+        .relleno.gris { background: #CBD5E1; width: 40%; }
+        .relleno.rojo { background: #DC2626; width: 50%; }
+        .detalle-tarjeta { font-size: 12px; color: #64748B; }
+        .detalle-tarjeta.azul { color: #0369A1; font-weight: 600; }
+        .detalle-tarjeta.rojo { color: #DC2626; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <aside class="barra-lateral">
+        <div class="logo-menu">
+            <div class="logo-il-menu">IL</div>
+            <div class="texto-logo-menu"><strong>INVENTLOOK</strong><span>MERCA MAX</span></div>
+        </div>
+        <a href="/dashboard" class="opcion-menu activa">
+            <img src="/img/menu.png" alt="Menú" class="icono-img">
+            Menú Principal
+        </a>
+        <a href="/productos" class="opcion-menu">
+            <img src="/img/productos.png" alt="Productos" class="icono-img">
+            Productos
+        </a>
+        <a href="/categorias" class="opcion-menu">
+            <img src="/img/categorias.png" alt="Categorías" class="icono-img">
+            Categorías
+        </a>
+        <a href="/movimientos" class="opcion-menu">
+            <img src="/img/movimientos.png" alt="Movimientos" class="icono-img">
+            Movimientos
+        </a>
+        <a href="/alertas" class="opcion-menu">
+            <img src="/img/alertas.png" alt="Alertas" class="icono-img">
+            Alertas
+        </a>
+        <a href="/cuentas" class="opcion-menu" th:if="${session.rolUsuario == 'ADMINISTRADOR'}">
+            <img src="/img/icono-usuario.png" alt="Cuentas" class="icono-img">
+            Cuentas
+        </a>
+        <!-- ✅ OPCIÓN DE REGISTRO CON TU IMAGEN -->
+        <a href="/registro" class="opcion-menu" th:if="${session.rolUsuario == 'ADMINISTRADOR'}">
+            <img src="/img/registro.png" alt="Registro" class="icono-img">
+            Registro
+        </a>
+    </aside>
+    <main class="contenido-principal">
+        <header class="barra-superior">
+            <div class="usuario-superior" id="areaUsuario" onclick="alternarMenu()">
+                <div class="datos-usuario">
+                    <strong th:text="${session.nombreUsuario != null ? session.nombreUsuario : 'Usuario'}">Tu Nombre</strong>
+                    <span th:text="${session.rolUsuario != null ? session.rolUsuario : 'USUARIO'}">ADMINISTRADOR</span>
+                </div>
+                <div class="avatar-usuario" th:text="${session.nombreUsuario != null ? #strings.substring(#strings.toUpperCase(session.nombreUsuario), 0, 2) : 'US'}">DA</div>
+                <div class="menu-usuario" id="menuUsuario">
+                    <a href="/logout">Cerrar sesión</a>
+                </div>
+            </div>
+        </header>
+        <section class="area-trabajo">
+            <div class="bienvenida">
+                <h1>¡BIENVENIDO! Tu orden inspira el progreso que transforma</h1>
+                <p>Resumen general del inventario de Merca Max, <span th:text="${#dates.format(#dates.createNow(), 'dd MMMM yyyy')}"></span>.</p>
+            </div>
+            <div class="grid-tarjetas">
+                <div class="tarjeta-resumen">
+                    <div class="etiqueta">Productos</div>
+                    <div class="valor" th:text="${totalProductos}">0</div>
+                    <div class="barra-progreso"><div class="relleno azul"></div></div>
+                    <div class="detalle-tarjeta azul">Total en inventario</div>
+                </div>
+                <div class="tarjeta-resumen">
+                    <div class="etiqueta">Categorías</div>
+                    <div class="valor" th:text="${totalCategorias}">0</div>
+                    <div class="barra-progreso"><div class="relleno gris"></div></div>
+                    <div class="detalle-tarjeta">Creadas en el sistema</div>
+                </div>
+                <div class="tarjeta-resumen">
+                    <div class="etiqueta">Alertas Activas</div>
+                    <div class="valor" style="color:#DC2626" th:text="${totalAlertas}">0</div>
+                    <div class="barra-progreso"><div class="relleno rojo"></div></div>
+                    <div class="detalle-tarjeta rojo">Productos con menos de 20 unidades</div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script>
+        function alternarMenu() {
+            const area = document.getElementById('areaUsuario');
+            area.classList.toggle('abierto');
+        }
+        
+        document.addEventListener('click', function(event) {
+            const area = document.getElementById('areaUsuario');
+            const menu = document.getElementById('menuUsuario');
+            if (!area.contains(event.target)) {
+                area.classList.remove('abierto');
+            }
+        });
+    </script>
+</body>
+</html>

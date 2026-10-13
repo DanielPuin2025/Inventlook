@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos - InventLook</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+        }
+        body {
+            background-color: #F8FAFC;
+            color: #0F172A;
+            display: flex;
+            min-height: 100vh;
+        }
+        /* =============================================
+           BARRA LATERAL IZQUIERDA (AZUL)
+           ============================================= */
+        .barra-lateral {
+            width: 240px;
+            min-width: 240px;
+            background: linear-gradient(180deg, #1E5F8C 0%, #2B6CB0 100%);
+            color: white;
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+        }
+        .logo-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 28px;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            margin-bottom: 20px;
+        }
+        .logo-il-menu {
+            width: 40px;
+            height: 40px;
+            background: white;
+            color: #1E5F8C;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            background-image: url('/img/logo-principal.png.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: transparent;
+            font-size: 0;
+        }
+        .texto-logo-menu strong { font-size: 18px; letter-spacing: 0.5px; display: block; }
+        .texto-logo-menu span { font-size: 10px; opacity: 0.8; letter-spacing: 1px; }
+        .opcion-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            color: white;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            transition: all 0.2s ease;
+            opacity: 0.9;
+        }
+        .opcion-menu:hover { background: rgba(255,255,255,0.15); opacity: 1; }
+        .opcion-menu.activa {
+            background: rgba(255,255,255,0.2);
+            opacity: 1;
+            font-weight: 600;
+            border-left: 3px solid white;
+        }
+        .icono-menu { font-size: 18px; width: 22px; text-align: center; }
+        .icono-img {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+            flex-shrink: 0;
+        }
+        .con-tooltip {
+            position: relative;
+            cursor: help;
+        }
+        .con-tooltip .tooltip-texto {
+            visibility: hidden;
+            width: 280px;
+            background-color: #1E293B;
+            color: #FFFFFF;
+            text-align: center;
+            border-radius: 10px;
+            padding: 10px 12px;
+            position: absolute;
+            z-index: 999;
+            bottom: 130%;
+            left: 50%;
+            margin-left: -140px;
+            font-size: 13px;
+            line-height: 1.4;
+            font-weight: normal;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        .con-tooltip .tooltip-texto::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -7px;
+            border-width: 7px;
+            border-style: solid;
+            border-color: #1E293B transparent transparent transparent;
+        }
+        .con-tooltip:hover .tooltip-texto {
+            visibility: visible;
+            opacity: 1;
+        }
+        /* =============================================
+           CONTENIDO PRINCIPAL
+           ============================================= */
+        .contenido-principal {
+            margin-left: 240px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .barra-superior {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+            background: white;
+            padding: 18px 32px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .buscador {
+            position: relative;
+            flex: 1;
+            max-width: 500px;
+        }
+        .buscador form { display: flex; }
+        .buscador input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            font-size: 14px;
+            background: #F8FAFC;
+        }
+        .buscador::before {
+            content: "Buscar";
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: #94A3B8;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .usuario-superior {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+            flex-shrink: 0;
+            position: relative;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 12px;
+            transition: background 0.2s ease;
+        }
+        .usuario-superior:hover { background: #F1F5F9; }
+        .datos-usuario {
+            display: flex;
+            flex-direction: column;
+            text-align: right;
+            line-height: 1.3;
+            justify-content: center;
+        }
+        .datos-usuario strong {
+            font-size: 14px;
+            color: #0F172A;
+            text-transform: capitalize;
+            font-weight: 600;
+        }
+        .datos-usuario span {
+            font-size: 11px;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+        .avatar-usuario {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #2B6CB0 0%, #1E5F8C 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(43, 108, 176, 0.3);
+        }
+        .menu-usuario {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: #374151;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            padding: 8px;
+            min-width: 180px;
+            display: none;
+            z-index: 999;
+            border: 1px solid #4B5563;
+        }
+        .usuario-superior.abierto .menu-usuario { display: block; }
+        .menu-usuario a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: background 0.15s ease;
+        }
+        .menu-usuario a:hover { background: #4B5563; }
+        .area-trabajo { padding: 32px; }
+        .titulo-seccion h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .titulo-seccion p {
+            color: #64748B;
+            font-size: 15px;
+            margin-bottom: 24px;
+        }
+        .mensaje {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .mensaje.error { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
+        .mensaje.exito { background: #F0FDF4; color: #166534; border: 1px solid #BBF7D0; }
+        .barra-acciones {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .filtros { display: flex; flex-wrap: wrap; gap: 10px; }
+        .filtro select {
+            padding: 10px 14px;
+            border: 1px solid #E2E8F0;
+            border-radius: 10px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+        .btn-agregar {
+            padding: 10px 20px;
+            background: #BFDBFE;
+            color: #1E40AF;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .btn-agregar:hover { background: #93C5FD; }
+        .tabla-contenedor {
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border: 1px solid #E2E8F0;
+            overflow: hidden;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        thead {
+            background: #F8FAFC;
+            color: #64748B;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+        th, td {
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid #F1F5F9;
+        }
+        th { font-weight: 600; }
+        tbody tr:hover { background: #F8FAFC; }
+        .estado {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .estado.optimo { background: #D1FAE5; color: #065F46; }
+        .estado.bajo { background: #FEF3C7; color: #92400E; }
+        .estado.agotado { background: #FEE2E2; color: #991B1B; }
+        .punto { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .punto.optimo { background: #10B981; }
+        .punto.bajo { background: #F59E0B; }
+        .punto.agotado { background: #EF4444; }
+        .acciones { display: flex; gap: 8px; }
+        .btn-accion {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #E2E8F0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .btn-accion.ver:hover { background: #E0F2FE; border-color: #7DD3FC; }
+        .btn-accion.editar:hover { background: #DBEAFE; border-color: #93C5FD; }
+        .btn-accion.borrar:hover { background: #FEE2E2; border-color: #FCA5A5; }
+        .sin-productos {
+            padding: 60px 20px;
+            text-align: center;
+            color: #64748B;
+        }
+        .sin-productos .icono { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
+        .sin-productos h3 { font-size: 18px; margin-bottom: 6px; color: #334155; }
+        .sin-productos p { font-size: 14px; }
+        .pie-tabla {
+            padding: 16px 20px;
+            color: #64748B;
+            font-size: 13px;
+        }
+        /* =============================================
+           MODAL DE DETALLES
+           ============================================= */
+        .fondo-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+        .fondo-modal.activo { display: flex; }
+        .modal-detalle {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 520px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            overflow: hidden;
+            animation: modalAparecer 0.25s ease;
+        }
+        @keyframes modalAparecer {
+            from { opacity: 0; transform: translateY(-20px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .modal-cabecera {
+            background: linear-gradient(135deg, #1E5F8C 0%, #2B6CB0 100%);
+            color: white;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-cabecera h2 { font-size: 20px; font-weight: 700; }
+        .btn-cerrar-modal {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-cerrar-modal:hover { background: rgba(255,255,255,0.3); }
+        .modal-cuerpo { padding: 24px; }
+        .fila-detalle {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 12px 0;
+            border-bottom: 1px solid #F1F5F9;
+            gap: 16px;
+        }
+        .fila-detalle:last-child { border-bottom: none; }
+        .fila-detalle .etiqueta {
+            color: #64748B;
+            font-size: 14px;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        .fila-detalle .valor {
+            color: #0F172A;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: right;
+            word-break: break-word;
+        }
+        .fila-detalle .valor .estado {
+            justify-content: flex-end;
+        }
+        .modal-pie {
+            padding: 16px 24px;
+            background: #F8FAFC;
+            text-align: right;
+        }
+        .btn-cerrar {
+            padding: 10px 20px;
+            background: #2B6CB0;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-cerrar:hover { background: #1E5F8C; }
+        /* =============================================
+           MODALES GRIS OSCURO (AGREGAR, EDITAR, ELIMINAR)
+           ============================================= */
+        .fondo-modal-formulario {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .fondo-modal-formulario.activo { display: flex; }
+        .modal-formulario {
+            background: #374151;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 520px;
+            max-height: 90vh;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            overflow: hidden;
+            animation: modalAparecer 0.25s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .modal-formulario.eliminar {
+            max-width: 440px;
+        }
+        .modal-formulario-cabecera {
+            background: #374151;
+            color: #FFFFFF;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            border-bottom: 1px solid #4B5563;
+        }
+        .modal-formulario-cabecera h2 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .btn-cerrar-gris {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-cerrar-gris:hover { background: rgba(255,255,255,0.2); }
+        .modal-formulario-cuerpo {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .modal-formulario-cuerpo.eliminar {
+            text-align: center;
+            padding: 30px 24px;
+        }
+        .icono-eliminar {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: #FCA5A5;
+        }
+        .modal-formulario-cuerpo.eliminar h3 {
+            color: #FFFFFF;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .modal-formulario-cuerpo.eliminar p {
+            color: #D1D5DB;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .grupo-form { margin-bottom: 18px; }
+        .grupo-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #FFFFFF;
+            font-size: 14px;
+        }
+        .grupo-form label small {
+            color: #D1D5DB;
+            font-weight: 400;
+        }
+        .grupo-form input, .grupo-form select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #4B5563;
+            border-radius: 10px;
+            font-size: 14px;
+            background: #1F2937;
+            color: #FFFFFF;
+            transition: all 0.2s ease;
+        }
+        .grupo-form input:focus, .grupo-form select:focus {
+            outline: none;
+            border-color: #60A5FA;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+            background: #111827;
+        }
+        .grupo-form input::placeholder {
+            color: #9CA3AF;
+        }
+        .grupo-form input[type="number"] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+        .grupo-form input::-webkit-outer-spin-button,
+        .grupo-form input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .modal-formulario-pie {
+            padding: 16px 24px;
+            background: #374151;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            flex-shrink: 0;
+            border-top: 1px solid #4B5563;
+        }
+        .btn-cancelar-modal {
+            flex: 1;
+            padding: 12px;
+            background: #DC2626;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-cancelar-modal:hover { background: #B91C1C; }
+        .btn-guardar-modal {
+            flex: 1;
+            padding: 12px;
+            background: #16A34A;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-guardar-modal:hover { background: #15803D; }
+        .btn-eliminar-confirmar {
+            flex: 1;
+            padding: 12px;
+            background: #DC2626;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-eliminar-confirmar:hover { background: #B91C1C; }
+    </style>
+</head>
+<body>
+    <!-- =============================================
+         BARRA LATERAL
+         ============================================= -->
+    <aside class="barra-lateral">
+        <div class="logo-menu">
+            <div class="logo-il-menu">IL</div>
+            <div class="texto-logo-menu">
+                <strong>INVENTLOOK</strong>
+                <span>MERCA MAX</span>
+            </div>
+        </div>
+        <a href="/dashboard" class="opcion-menu">
+            <img src="/img/menu.png" alt="Menú" class="icono-img">
+            Menú Principal
+        </a>
+        <a href="/productos" class="opcion-menu activa">
+            <img src="/img/productos.png" alt="Productos" class="icono-img">
+            Productos
+        </a>
+        <a href="/categorias" class="opcion-menu">
+            <img src="/img/categorias.png" alt="Categorías" class="icono-img">
+            Categorías
+        </a>
+        <a href="/movimientos" class="opcion-menu">
+            <img src="/img/movimientos.png" alt="Movimientos" class="icono-img">
+            Movimientos
+        </a>
+        <a href="/alertas" class="opcion-menu">
+            <img src="/img/alertas.png" alt="Alertas" class="icono-img">
+            Alertas
+        </a>
+        <a href="/cuentas" class="opcion-menu" th:if="${session.rolUsuario == 'ADMINISTRADOR'}">
+            <img src="/img/icono-usuario.png" alt="Cuentas" class="icono-img">
+            Cuentas
+        </a>
+        <a href="/registro" class="opcion-menu" th:if="${session.rolUsuario == 'ADMINISTRADOR'}">
+            <img src="/img/registro.png" alt="Registro" class="icono-img">
+            Registro
+        </a>
+    </aside>
+    <!-- =============================================
+         CONTENIDO
+         ============================================= -->
+    <main class="contenido-principal">
+        <header class="barra-superior">
+            <div class="buscador">
+                <form th:action="@{/productos}" method="get">
+                    <input type="text" name="buscar"
+                           placeholder="Buscar producto, codigo o categoria..."
+                           th:value="${param.buscar != null ? param.buscar[0] : ''}">
+                </form>
+            </div>
+            <div class="usuario-superior" id="areaUsuario" onclick="alternarMenu()">
+                <div class="datos-usuario">
+                    <strong th:text="${session.nombreUsuario != null ? session.nombreUsuario : 'Usuario'}">Tu Nombre</strong>
+                    <span th:text="${session.rolUsuario != null ? session.rolUsuario : 'USUARIO'}">ADMINISTRADOR</span>
+                </div>
+                <div class="avatar-usuario"
+                     th:text="${session.nombreUsuario != null ? #strings.substring(#strings.toUpperCase(session.nombreUsuario), 0, 2) : 'US'}">
+                    DA
+                </div>
+                <div class="menu-usuario" id="menuUsuario">
+                    <a href="/logout">Cerrar sesión</a>
+                </div>
+            </div>
+        </header>
+        <section class="area-trabajo">
+            <div class="titulo-seccion">
+                <h1>Productos</h1>
+                <p>Administra el catalogo de productos del autoservicio Merca Max.</p>
+            </div>
+            <div th:if="${exito}" class="mensaje exito" th:text="${exito}"></div>
+            <div th:if="${error}" class="mensaje error" th:text="${error}"></div>
+            <div th:if="${filtroActivo and categoriaSeleccionada != null}"
+                 style="margin: 10px 0 20px 0; padding: 12px 16px; background: #DBEAFE; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <span style="font-size: 15px; color: #1E3A8A;">
+                    Mostrando solo productos de:
+                    <strong th:text="${categoriaSeleccionada.nombreCategoria}">Categoria</strong>
+                </span>
+                <a href="/productos" style="padding: 8px 16px; background: #1E40AF; color: white; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 500;">
+                    Ver todos los productos
+                </a>
+            </div>
+            <div class="barra-acciones">
+                <div class="filtros">
+                    <div class="filtro">
+                        <select onchange="if(this.value) window.location.href='/productos-por-categoria/'+this.value">
+                            <option value="">Todas las categorias</option>
+                            <option th:each="cat : ${@categoriaService.listarTodas()}"
+                                    th:value="${cat.idCategoria}"
+                                    th:text="${cat.nombreCategoria}"
+                                    th:selected="${filtroActivo and categoriaSeleccionada != null and categoriaSeleccionada.idCategoria == cat.idCategoria}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="filtro">
+                        <select onchange="window.location.href=this.value ? '/productos?estado=' + encodeURIComponent(this.value) : '/productos'">
+                            <option value="" th:selected="${param.estado == null}">Estado: Todos</option>
+                            <option value="Optimo" th:selected="${param.estado == 'Optimo'}">Optimo</option>
+                            <option value="Stock bajo" th:selected="${param.estado == 'Stock bajo'}">Stock bajo</option>
+                        </select>
+                    </div>
+                    <div class="filtro">
+                        <select>
+                            <option>Ordenar: Nombre A-Z</option>
+                            <option>Ordenar: Actual menor a mayor</option>
+                            <option>Ordenar: Stock bajo primero</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="button" class="btn-agregar" onclick="abrirModalAgregar()">+ Agregar producto</button>
+            </div>
+            <div class="tabla-contenedor">
+                <table th:if="${productos != null and !productos.isEmpty()}">
+                    <thead>
+                        <tr>
+                            <th>Codigo</th>
+                            <th>Producto</th>
+                            <th>Categoria</th>
+                            <th>Proveedor</th>
+                            <th>Actual</th>
+                            <th>Bodega</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="prod : ${productos}">
+                            <td th:text="${prod.codigo}">PR001</td>
+                            <td th:text="${prod.nombre}">Nombre producto</td>
+                            <td th:text="${prod.categoria != null ? prod.categoria.nombreCategoria : 'Sin categoria'}">Categoria</td>
+                            <td th:text="${prod.proveedor != null and !prod.proveedor.isBlank() ? prod.proveedor : '—'}">Proveedor</td>
+                            <td th:text="${prod.actual}">0</td>
+                            <td th:text="${prod.bodega}">0</td>
+                            <td>
+                                <div class="con-tooltip">
+                                    <span class="estado"
+                                          th:classappend="${prod.estado == 'Optimo'} ? 'optimo' :
+                                              (${prod.estado == 'Stock bajo'} ? 'bajo' : 'agotado')">
+                                        <span class="punto"
+                                              th:classappend="${prod.estado == 'Optimo'} ? 'optimo' :
+                                                  (${prod.estado == 'Stock bajo'} ? 'bajo' : 'agotado')"></span>
+                                        <span th:text="${prod.estado}">Optimo</span>
+                                    </span>
+                                    <span class="tooltip-texto" th:if="${prod.estado == 'Stock bajo'}">
+                                        Stock bajo: reponer inmediatamente hasta alcanzar al menos 20 unidades para mantener el inventario estable.
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="acciones">
+                                <!-- ✅ VER = OJO 👁 -->
+                                <button class="btn-accion ver"
+                                        title="Ver detalles del producto"
+                                        th:data-codigo="${prod.codigo}"
+                                        th:data-nombre="${prod.nombre}"
+                                        th:data-categoria="${prod.categoria != null ? prod.categoria.nombreCategoria : 'Sin categoria'}"
+                                        th:data-proveedor="${prod.proveedor != null and !prod.proveedor.isBlank() ? prod.proveedor : '—'}"
+                                        th:data-actual="${prod.actual}"
+                                        th:data-bodega="${prod.bodega}"
+                                        th:data-estado="${prod.estado}"
+                                        onclick="abrirModal(this)">👁</button>
+                                <!-- ✅ EDITAR = LAPIZ ✏ -->
+                                <button class="btn-accion editar"
+                                        title="Editar producto"
+                                        th:data-id="${prod.idProducto}"
+                                        th:data-codigo="${prod.codigo}"
+                                        th:data-nombre="${prod.nombre}"
+                                        th:data-idcategoria="${prod.categoria != null ? prod.categoria.idCategoria : ''}"
+                                        th:data-proveedor="${prod.proveedor != null ? prod.proveedor : ''}"
+                                        th:data-actual="${prod.actual}"
+                                        th:data-bodega="${prod.bodega}"
+                                        onclick="abrirModalEditar(this)">✏</button>
+                                <!-- ✅ ELIMINAR = PAPELERA 🗑 -->
+                                <button class="btn-accion borrar"
+                                        title="Eliminar producto"
+                                        th:onclick="|abrirModalEliminar(${prod.idProducto})|">🗑</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div th:if="${productos == null or productos.isEmpty()}" class="sin-productos">
+                    <div class="icono">[ ]</div>
+                    <h3 th:if="${filtroActivo}">No hay productos en esta categoria</h3>
+                    <h3 th:unless="${filtroActivo}">Aun no tienes productos registrados</h3>
+                    <p th:if="${filtroActivo}">Prueba con otra categoria o <a href="/agregar-producto" style="color:#1E40AF;font-weight:600">agrega uno nuevo aqui</a>.</p>
+                    <p th:unless="${filtroActivo}">Empieza agregando tu primer producto <a href="/agregar-producto" style="color:#1E40AF;font-weight:600">haciendo clic aqui</a>.</p>
+                </div>
+                <div class="pie-tabla" th:if="${productos != null and !productos.isEmpty()}">
+                    Mostrando <span th:text="${productos.size()}">0</span> de <span th:text="${totalProductos}">0</span> productos
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- =============================================
+         MODAL DE DETALLES
+         ============================================= -->
+    <div class="fondo-modal" id="modalDetalle" onclick="cerrarModalFuera(event)">
+        <div class="modal-detalle">
+            <div class="modal-cabecera">
+                <h2>Detalles del producto</h2>
+                <button class="btn-cerrar-modal" onclick="cerrarModal()">×</button>
+            </div>
+            <div class="modal-cuerpo">
+                <div class="fila-detalle">
+                    <span class="etiqueta">Codigo</span>
+                    <span class="valor" id="modal-codigo">—</span>
+                </div>
+                <div class="fila-detalle">
+                    <span class="etiqueta">Nombre del producto</span>
+                    <span class="valor" id="modal-nombre">—</span>
+                </div>
+                <div class="fila-detalle">
+                    <span class="etiqueta">Categoria</span>
+                    <span class="valor" id="modal-categoria">—</span>
+                </div>
+                <div class="fila-detalle">
+                    <span class="etiqueta">Proveedor</span>
+                    <span class="valor" id="modal-proveedor">—</span>
+                </div>
+                <div class="fila-detalle">
+                    <span class="etiqueta">Actual</span>
+                    <span class="valor" id="modal-actual">—</span>
+                </div>
+                <div class="fila-detalle">
+                    <span class="etiqueta">Bodega</span>
+                    <span class="valor" id="modal-bodega">—</span>
+                </div>
+                <div class="fila-detalle">
+                    <span class="etiqueta">Estado actual</span>
+                    <span class="valor" id="modal-estado">—</span>
+                </div>
+            </div>
+            <div class="modal-pie">
+                <button class="btn-cerrar" onclick="cerrarModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+    <!-- =============================================
+         MODAL DE AGREGAR PRODUCTO (GRIS OSCURO)
+         ============================================= -->
+    <div class="fondo-modal-formulario" id="modalAgregar" onclick="cerrarModalAgregarFuera(event)">
+        <div class="modal-formulario">
+            <div class="modal-formulario-cabecera">
+                <h2>Agregar Nuevo Producto</h2>
+                <button class="btn-cerrar-gris" onclick="cerrarModalAgregar()">×</button>
+            </div>
+            <form th:action="@{/guardar-producto}" method="post" th:object="${productoNuevo}">
+                <div class="modal-formulario-cuerpo">
+                    <div class="grupo-form">
+                        <label>Nombre del producto</label>
+                        <input type="text" th:field="*{nombre}" required maxlength="100" placeholder="Ej: Arroz Diana 500g" autocomplete="off">
+                    </div>
+                    <div class="grupo-form">
+                        <label>Categoria</label>
+                        <select th:field="*{categoria}" required>
+                            <option value="" disabled>Selecciona una categoria</option>
+                            <option th:each="cat : ${listaCategorias}"
+                                    th:value="${cat.idCategoria}"
+                                    th:text="${cat.nombreCategoria}">
+                                Categoria
+                            </option>
+                        </select>
+                    </div>
+                    <div class="grupo-form">
+                        <label>Proveedor <small>(quien te vende el producto)</small></label>
+                        <input type="text" th:field="*{proveedor}" maxlength="100" placeholder="Ej: Coca-Cola, Molinos Diana, Distribuidora X" autocomplete="off">
+                    </div>
+                    <div class="grupo-form">
+                        <label>Actual</label>
+                        <input type="number" th:field="*{actual}" required min="0" placeholder="0" autocomplete="off">
+                    </div>
+                    <div class="grupo-form">
+                        <label>Bodega</label>
+                        <input type="number" th:field="*{bodega}" required min="0" placeholder="0" autocomplete="off">
+                    </div>
+                </div>
+                <div class="modal-formulario-pie">
+                    <button type="button" class="btn-cancelar-modal" onclick="cerrarModalAgregar()">Cancelar</button>
+                    <button type="submit" class="btn-guardar-modal">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- =============================================
+         MODAL DE EDITAR PRODUCTO (GRIS OSCURO)
+         ============================================= -->
+    <div class="fondo-modal-formulario" id="modalEditar" onclick="cerrarModalEditarFuera(event)">
+        <div class="modal-formulario">
+            <div class="modal-formulario-cabecera">
+                <h2>Editar Producto</h2>
+                <button class="btn-cerrar-gris" onclick="cerrarModalEditar()">×</button>
+            </div>
+            <form th:action="@{/actualizar-producto}" method="post">
+                <div class="modal-formulario-cuerpo">
+                    <input type="hidden" name="idProducto" id="edit-idProducto">
+                    <div class="grupo-form">
+                        <label>Codigo <small>(generado automatico)</small></label>
+                        <input type="text" id="edit-codigo" readonly style="background:#1F2937; opacity:0.7;">
+                    </div>
+                    <div class="grupo-form">
+                        <label>Nombre del producto</label>
+                        <input type="text" name="nombre" id="edit-nombre" required maxlength="100" placeholder="Ej: Arroz Diana 500g" autocomplete="off">
+                    </div>
+                    <div class="grupo-form">
+                        <label>Categoria</label>
+                        <select name="categoria" id="edit-categoria" required>
+                            <option value="" disabled>Selecciona una categoria</option>
+                            <option th:each="cat : ${listaCategorias}"
+                                    th:value="${cat.idCategoria}"
+                                    th:text="${cat.nombreCategoria}">
+                                Categoria
+                            </option>
+                        </select>
+                    </div>
+                    <div class="grupo-form">
+                        <label>Proveedor <small>(quien te vende el producto)</small></label>
+                        <input type="text" name="proveedor" id="edit-proveedor" maxlength="100" placeholder="Ej: Coca-Cola, Molinos Diana, Distribuidora X" autocomplete="off">
+                    </div>
+                    <div class="grupo-form">
+                        <label>Actual</label>
+                        <input type="number" name="actual" id="edit-actual" required min="0" placeholder="0" autocomplete="off">
+                    </div>
+                    <div class="grupo-form">
+                        <label>Bodega</label>
+                        <input type="number" name="bodega" id="edit-bodega" required min="0" placeholder="0" autocomplete="off">
+                    </div>
+                </div>
+                <div class="modal-formulario-pie">
+                    <button type="button" class="btn-cancelar-modal" onclick="cerrarModalEditar()">Cancelar</button>
+                    <button type="submit" class="btn-guardar-modal">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- =============================================
+         MODAL DE ELIMINAR PRODUCTO (GRIS OSCURO)
+         ============================================= -->
+    <div class="fondo-modal-formulario" id="modalEliminar" onclick="cerrarModalEliminarFuera(event)">
+        <div class="modal-formulario eliminar">
+            <div class="modal-formulario-cabecera">
+                <h2>Confirmar Eliminacion</h2>
+                <button class="btn-cerrar-gris" onclick="cerrarModalEliminar()">×</button>
+            </div>
+            <div class="modal-formulario-cuerpo eliminar">
+                <div class="icono-eliminar">⚠</div>
+                <h3>Eliminar este producto?</h3>
+                <p>Esta accion es permanente y no se puede deshacer.<br>Se eliminara el producto y todos sus movimientos asociados.</p>
+            </div>
+            <div class="modal-formulario-pie">
+                <button type="button" class="btn-cancelar-modal" onclick="cerrarModalEliminar()">Cancelar</button>
+                <button type="button" class="btn-eliminar-confirmar" id="btnConfirmarEliminar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+    <!-- SCRIPTS -->
+    <script>
+        let idProductoAEliminar = null;
+        function abrirModal(boton) {
+            const codigo = boton.dataset.codigo;
+            const nombre = boton.dataset.nombre;
+            const categoria = boton.dataset.categoria;
+            const proveedor = boton.dataset.proveedor;
+            const actual = boton.dataset.actual;
+            const bodega = boton.dataset.bodega;
+            const estado = boton.dataset.estado;
+            document.getElementById('modal-codigo').textContent = codigo;
+            document.getElementById('modal-nombre').textContent = nombre;
+            document.getElementById('modal-categoria').textContent = categoria;
+            document.getElementById('modal-proveedor').textContent = proveedor;
+            document.getElementById('modal-actual').textContent = actual + ' unidades';
+            document.getElementById('modal-bodega').textContent = bodega + ' unidades';
+            const estadoSpan = document.getElementById('modal-estado');
+            let claseEstado = '';
+            if (estado === 'Optimo') claseEstado = 'optimo';
+            else if (estado === 'Stock bajo') claseEstado = 'bajo';
+            else claseEstado = 'agotado';
+            estadoSpan.innerHTML = `
+                <span class="estado ${claseEstado}">
+                    <span class="punto ${claseEstado}"></span>
+                    ${estado}
+                </span>
+            `;
+            document.getElementById('modalDetalle').classList.add('activo');
+        }
+        function cerrarModal() {
+            document.getElementById('modalDetalle').classList.remove('activo');
+        }
+        function cerrarModalFuera(event) {
+            if (event.target.id === 'modalDetalle') cerrarModal();
+        }
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                cerrarModal();
+                cerrarModalAgregar();
+                cerrarModalEditar();
+                cerrarModalEliminar();
+            }
+        });
+        
+        function alternarMenu() {
+            const area = document.getElementById('areaUsuario');
+            area.classList.toggle('abierto');
+        }
+        document.addEventListener('click', function(event) {
+            const area = document.getElementById('areaUsuario');
+            if (!area.contains(event.target)) {
+                area.classList.remove('abierto');
+            }
+        });
+        /* =============================================
+           FUNCIONES MODAL AGREGAR PRODUCTO
+           ============================================= */
+        function abrirModalAgregar() {
+            document.getElementById('modalAgregar').classList.add('activo');
+        }
+        function cerrarModalAgregar() {
+            document.getElementById('modalAgregar').classList.remove('activo');
+        }
+        function cerrarModalAgregarFuera(event) {
+            if (event.target.id === 'modalAgregar') cerrarModalAgregar();
+        }
+        /* =============================================
+           FUNCIONES MODAL EDITAR PRODUCTO
+           ============================================= */
+        function abrirModalEditar(boton) {
+            document.getElementById('edit-idProducto').value = boton.dataset.id;
+            document.getElementById('edit-codigo').value = boton.dataset.codigo;
+            document.getElementById('edit-nombre').value = boton.dataset.nombre;
+            document.getElementById('edit-categoria').value = boton.dataset.idcategoria;
+            document.getElementById('edit-proveedor').value = boton.dataset.proveedor;
+            document.getElementById('edit-actual').value = boton.dataset.actual;
+            document.getElementById('edit-bodega').value = boton.dataset.bodega;
+            
+            document.getElementById('modalEditar').classList.add('activo');
+        }
+        function cerrarModalEditar() {
+            document.getElementById('modalEditar').classList.remove('activo');
+        }
+        function cerrarModalEditarFuera(event) {
+            if (event.target.id === 'modalEditar') cerrarModalEditar();
+        }
+        /* =============================================
+           FUNCIONES MODAL ELIMINAR PRODUCTO
+           ============================================= */
+        function abrirModalEliminar(idProducto) {
+            idProductoAEliminar = idProducto;
+            document.getElementById('modalEliminar').classList.add('activo');
+        }
+        function cerrarModalEliminar() {
+            document.getElementById('modalEliminar').classList.remove('activo');
+            idProductoAEliminar = null;
+        }
+        function cerrarModalEliminarFuera(event) {
+            if (event.target.id === 'modalEliminar') cerrarModalEliminar();
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            const btnEliminar = document.getElementById('btnConfirmarEliminar');
+            if (btnEliminar) {
+                btnEliminar.addEventListener('click', function() {
+                    if (idProductoAEliminar) {
+                        window.location.href = "/eliminar-producto/" + idProductoAEliminar;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

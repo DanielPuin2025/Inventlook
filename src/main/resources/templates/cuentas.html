@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Cuentas - InventLook</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
+        body { background: #F8FAFC; color: #0F172A; display: flex; min-height: 100vh; }
+        .barra-lateral {
+            width: 240px; min-width: 240px;
+            background: linear-gradient(180deg, #1E5F8C 0%, #2B6CB0 100%);
+            color: white; padding: 24px 16px; display: flex; flex-direction: column; position: fixed; height: 100vh;
+        }
+        .logo-menu { display: flex; align-items: center; gap: 12px; padding-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,0.15); margin-bottom: 20px; }
+        .logo-il-menu {
+            width: 40px; height: 40px; background: white; color: #1E5F8C; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px;
+            background-image: url('/img/logo-principal.png.png');
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            color: transparent; font-size: 0;
+        }
+        .texto-logo-menu { display: flex; flex-direction: column; }
+        .texto-logo-menu strong { font-size: 18px; letter-spacing: 0.5px; }
+        .texto-logo-menu span { font-size: 10px; opacity: 0.8; letter-spacing: 1px; }
+        .opcion-menu { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; color: white; text-decoration: none; font-size: 15px; font-weight: 500; margin-bottom: 6px; transition: all 0.2s; opacity: 0.9; }
+        .opcion-menu:hover { background: rgba(255,255,255,0.15); opacity: 1; }
+        .opcion-menu.activa { background: rgba(255,255,255,0.2); opacity: 1; font-weight: 600; border-left: 3px solid white; }
+        .icono-img {
+            width: 36px; height: 36px; object-fit: contain;
+            filter: brightness(0) invert(1); flex-shrink: 0;
+        }
+        .contenido-principal { margin-left: 240px; flex: 1; padding: 32px; }
+        .barra-superior {
+            display: flex; justify-content: flex-end; align-items: center; gap: 24px;
+            background: transparent; padding: 0 0 20px 0; margin: 0;
+            box-shadow: none;
+        }
+        .usuario-superior {
+            display: flex; align-items: center; gap: 12px; position: relative;
+            cursor: pointer; padding: 6px 10px; border-radius: 12px;
+            transition: background 0.2s ease;
+        }
+        .usuario-superior:hover { background: #F1F5F9; }
+        .datos-usuario {
+            display: flex; flex-direction: column;
+            text-align: right;
+            line-height: 1.3;
+        }
+        .datos-usuario strong {
+            font-size: 14px; text-transform: capitalize;
+            color: #0F172A; font-weight: 600;
+        }
+        .datos-usuario span {
+            font-size: 11px; color: #64748B;
+            text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500;
+        }
+        .avatar-usuario {
+            width: 42px; height: 42px;
+            background: linear-gradient(135deg, #2B6CB0 0%, #1E5F8C 100%); color: white;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 14px; flex-shrink: 0;
+        }
+        .menu-usuario {
+            position: absolute; top: calc(100% + 10px); right: 0;
+            background: #374151;
+            border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            padding: 8px; min-width: 180px; display: none; z-index: 999; border: 1px solid #4B5563;
+        }
+        .usuario-superior.abierto .menu-usuario { display: block; }
+        .menu-usuario a {
+            display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+            color: #FFFFFF;
+            text-decoration: none; font-size: 14px; font-weight: 500;
+            border-radius: 8px; transition: background 0.15s ease;
+        }
+        .menu-usuario a:hover { background: #4B5563; }
+        .tarjeta { background: white; padding: 28px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #E2E8F0; margin-top: 0; }
+        h1 { font-size: 26px; margin-bottom: 8px; color: #0F172A; margin-top: 0; }
+        .subtitulo { color: #64748B; margin-bottom: 24px; }
+        .mensaje-exito { background: #ECFDF5; color: #065F46; padding: 12px 16px; border-radius: 8px; margin-bottom: 18px; }
+        .mensaje-error { background: #FEF2F2; color: #991B1B; padding: 12px 16px; border-radius: 8px; margin-bottom: 18px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #F1F5F9; padding: 14px 12px; text-align: left; font-weight: 600; color: #334155; border-bottom: 2px solid #E2E8F0; }
+        td { padding: 14px 12px; border-bottom: 1px solid #E2E8F0; color: #334155; }
+        .rol-admin { color: #1E40AF; font-weight: 600; }
+        .rol-empleado { color: #065F46; font-weight: 600; }
+        .estado-activo { color: #059669; font-weight: 600; }
+        .estado-inactivo { color: #DC2626; font-weight: 600; }
+        .btn-eliminar {
+            padding: 8px 14px; background: #DC2626; color: white; border: none; border-radius: 8px;
+            text-decoration: none; font-size: 14px; font-weight: 500; display: inline-block;
+            cursor: pointer;
+        }
+        .btn-eliminar:hover { background: #B91C1C; }
+        /* ✅ NUEVO: Botón CAMBIAR (azul) para administrador */
+        .btn-cambiar {
+            padding: 8px 14px; background: #2563EB; color: white; border: none; border-radius: 8px;
+            text-decoration: none; font-size: 14px; font-weight: 500; display: inline-block;
+            cursor: pointer;
+        }
+        .btn-cambiar:hover { background: #1D4ED8; }
+        .vacio { text-align: center; padding: 40px; color: #94A3B8; }
+        /* ✅ CUADRO DE CONFIRMACIÓN DE ELIMINAR */
+        .fondo-confirmacion {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+        }
+        .fondo-confirmacion.activo { display: flex; }
+        .modal-confirmacion {
+            background: #374151;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            overflow: hidden;
+            animation: modalAparecer 0.25s ease;
+        }
+        @keyframes modalAparecer {
+            from { opacity: 0; transform: translateY(-20px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .modal-confirmacion-cuerpo {
+            padding: 32px 28px 24px;
+            text-align: center;
+        }
+        .icono-alerta {
+            width: 56px; height: 56px;
+            background: rgba(239, 68, 68, 0.2);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 16px; font-size: 28px;
+        }
+        .modal-confirmacion h3 {
+            color: #FFFFFF; font-size: 20px; font-weight: 600; margin-bottom: 8px;
+        }
+        .modal-confirmacion p {
+            color: #D1D5DB; font-size: 14px; margin-bottom: 24px; line-height: 1.5;
+        }
+        .modal-confirmacion-botones {
+            display: flex; gap: 12px; padding: 0 28px 28px;
+        }
+        .btn-cancelar-conf {
+            flex: 1; padding: 12px; background: #DC2626; color: #FFFFFF;
+            border: none; border-radius: 10px; font-size: 15px;
+            font-weight: 600; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-cancelar-conf:hover { background: #B91C1C; }
+        .btn-aceptar-conf {
+            flex: 1; padding: 12px; background: #16A34A; color: #FFFFFF;
+            border: none; border-radius: 10px; font-size: 15px;
+            font-weight: 600; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-aceptar-conf:hover { background: #15803D; }
+        /* ✅ NUEVO: MODAL DE CAMBIAR ADMINISTRADOR */
+        .fondo-modal-cambiar {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .fondo-modal-cambiar.activo { display: flex; }
+        .modal-cambiar {
+            background: #374151;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            overflow: hidden;
+            animation: modalAparecer 0.25s ease;
+        }
+        .modal-cambiar-cabecera {
+            background: #374151;
+            color: #FFFFFF;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #4B5563;
+        }
+        .modal-cambiar-cabecera h2 { font-size: 20px; font-weight: 700; }
+        .btn-cerrar-cambiar {
+            background: rgba(255,255,255,0.1);
+            border: none; color: white;
+            width: 32px; height: 32px; border-radius: 50%;
+            font-size: 18px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .btn-cerrar-cambiar:hover { background: rgba(255,255,255,0.2); }
+        .modal-cambiar-cuerpo { padding: 24px; }
+        .campo-cambiar { margin-bottom: 16px; }
+        .campo-cambiar label {
+            display: block; margin-bottom: 6px;
+            font-weight: 600; color: #FFFFFF; font-size: 14px;
+        }
+        .campo-cambiar label small { color: #D1D5DB; font-weight: 400; }
+        .campo-cambiar input {
+            width: 100%; padding: 12px 16px;
+            border: 1px solid #4B5563; border-radius: 10px;
+            font-size: 14px; background: #1F2937; color: #FFFFFF;
+        }
+        .campo-cambiar input:focus {
+            outline: none; border-color: #60A5FA;
+            box-shadow: 0 0 0 3px rgba(96,165,250,0.2);
+        }
+        .modal-cambiar-pie {
+            padding: 16px 24px;
+            background: #374151;
+            display: flex; gap: 12px;
+            justify-content: flex-end;
+            border-top: 1px solid #4B5563;
+        }
+        .btn-cancelar-cambiar {
+            flex: 1; padding: 12px; background: #6B7280; color: #FFFFFF;
+            border: none; border-radius: 10px; font-size: 15px;
+            font-weight: 600; cursor: pointer;
+        }
+        .btn-cancelar-cambiar:hover { background: #4B5563; }
+        .btn-guardar-cambiar {
+            flex: 1; padding: 12px; background: #2563EB; color: #FFFFFF;
+            border: none; border-radius: 10px; font-size: 15px;
+            font-weight: 600; cursor: pointer;
+        }
+        .btn-guardar-cambiar:hover { background: #1D4ED8; }
+    </style>
+</head>
+<body>
+    <aside class="barra-lateral">
+        <div class="logo-menu">
+            <div class="logo-il-menu">IL</div>
+            <div class="texto-logo-menu"><strong>INVENTLOOK</strong><span>MERCA MAX</span></div>
+        </div>
+        <a href="/dashboard" class="opcion-menu">
+            <img src="/img/menu.png" alt="Menú" class="icono-img">
+            Menú Principal
+        </a>
+        <a href="/productos" class="opcion-menu">
+            <img src="/img/productos.png" alt="Productos" class="icono-img">
+            Productos
+        </a>
+        <a href="/categorias" class="opcion-menu">
+            <img src="/img/categorias.png" alt="Categorías" class="icono-img">
+            Categorías
+        </a>
+        <a href="/movimientos" class="opcion-menu">
+            <img src="/img/movimientos.png" alt="Movimientos" class="icono-img">
+            Movimientos
+        </a>
+        <a href="/alertas" class="opcion-menu">
+            <img src="/img/alertas.png" alt="Alertas" class="icono-img">
+            Alertas
+        </a>
+        <a href="/cuentas" class="opcion-menu activa" th:if="${session.rolUsuario == 'ADMINISTRADOR'}">
+            <img src="/img/icono-usuario.png" alt="Cuentas" class="icono-img">
+            Cuentas
+        </a>
+        <a href="/registro" class="opcion-menu" th:if="${session.rolUsuario == 'ADMINISTRADOR'}">
+            <img src="/img/registro.png" alt="Registro" class="icono-img">
+            Registro
+        </a>
+    </aside>
+    <main class="contenido-principal">
+        <header class="barra-superior">
+            <div class="usuario-superior" id="areaUsuario" onclick="alternarMenu()">
+                <div class="datos-usuario">
+                    <strong th:text="${session.nombreUsuario != null ? session.nombreUsuario : 'Usuario'}">Tu Nombre</strong>
+                    <span th:text="${session.rolUsuario != null ? session.rolUsuario : 'USUARIO'}">ADMINISTRADOR</span>
+                </div>
+                <div class="avatar-usuario"
+                     th:text="${session.nombreUsuario != null ? #strings.substring(#strings.toUpperCase(session.nombreUsuario), 0, 2) : 'US'}">
+                    DA
+                </div>
+                <div class="menu-usuario" id="menuUsuario">
+                    <a href="/logout">Cerrar sesión</a>
+                </div>
+            </div>
+        </header>
+        <div class="tarjeta">
+            <h1>Gestión de Cuentas</h1>
+            <p class="subtitulo">Administra los usuarios del sistema — elimina cuentas de personas que ya no trabajan aquí.</p>
+            <div th:if="${exito}" class="mensaje-exito" th:text="${exito}"></div>
+            <div th:if="${error}" class="mensaje-error" th:text="${error}"></div>
+            <table th:if="${!listaUsuarios.isEmpty()}">
+                <thead>
+                    <tr>
+                        <th>Nombre Completo</th>
+                        <th>Correo Electrónico</th>
+                        <th>Teléfono</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th style="text-align: center;">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="usuario : ${listaUsuarios}">
+                        <td th:text="${usuario.nombre}"></td>
+                        <td th:text="${usuario.correo}"></td>
+                        <td th:text="${usuario.telefono != null ? usuario.telefono : '—'}"></td>
+                        <td th:class="${usuario.rol == 'ADMINISTRADOR' ? 'rol-admin' : 'rol-empleado'}"
+                            th:text="${usuario.rol}"></td>
+                        <td th:class="${usuario.activo ? 'estado-activo' : 'estado-inactivo'}">
+                            <span th:if="${usuario.activo}">  Activo</span>
+                            <span th:if="${!usuario.activo}">  Bloqueado</span>
+                        </td>
+                        <td style="text-align: center;">
+                            <!-- ✅ SI ES ADMINISTRADOR: botón CAMBIAR (azul) -->
+                            <button th:if="${usuario.rol == 'ADMINISTRADOR'}"
+                                    class="btn-cambiar"
+                                    th:data-id="${usuario.idUsuario}"
+                                    th:data-nombre="${usuario.nombre}"
+                                    th:data-correo="${usuario.correo}"
+                                    th:data-telefono="${usuario.telefono != null ? usuario.telefono : ''}"
+                                    onclick="abrirModalCambiar(this)">
+                                CAMBIAR
+                            </button>
+                            <!-- ✅ SI ES EMPLEADO: botón Eliminar (rojo) -->
+                            <a th:unless="${usuario.rol == 'ADMINISTRADOR'}"
+                               th:href="@{/cuentas/eliminar/{id}(id=${usuario.idUsuario})}"
+                               class="btn-eliminar"
+                               onclick="confirmarEliminar(event, this.href); return false;">
+                                Eliminar
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="vacio" th:if="${listaUsuarios.isEmpty()}">
+                No hay usuarios registrados en el sistema.
+            </div>
+        </div>
+    </main>
+
+    <!-- ✅ MODAL CONFIRMACIÓN ELIMINAR -->
+    <div class="fondo-confirmacion" id="modalConfirmacion" onclick="cerrarConfirmacionFuera(event)">
+        <div class="modal-confirmacion">
+            <div class="modal-confirmacion-cuerpo">
+                <div class="icono-alerta">⚠️</div>
+                <h3>¿Eliminar esta cuenta permanentemente?</h3>
+                <p>La persona ya no podrá iniciar sesión. Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-confirmacion-botones">
+                <button class="btn-cancelar-conf" onclick="cerrarConfirmacion()">Cancelar</button>
+                <button class="btn-aceptar-conf" onclick="ejecutarEliminacion()">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ NUEVO: MODAL CAMBIAR ADMINISTRADOR -->
+    <div class="fondo-modal-cambiar" id="modalCambiar" onclick="cerrarModalCambiarFuera(event)">
+        <div class="modal-cambiar">
+            <div class="modal-cambiar-cabecera">
+                <h2>Cambiar Datos del Administrador</h2>
+                <button class="btn-cerrar-cambiar" onclick="cerrarModalCambiar()">×</button>
+            </div>
+            <form action="/cuentas/actualizar" method="post">
+                <div class="modal-cambiar-cuerpo">
+                    <input type="hidden" name="idUsuario" id="cambiar-id">
+                    <div class="campo-cambiar">
+                        <label>Nombre completo</label>
+                        <input type="text" name="nombre" id="cambiar-nombre" required maxlength="100" autocomplete="off">
+                    </div>
+                    <div class="campo-cambiar">
+                        <label>Correo electrónico</label>
+                        <input type="email" name="correo" id="cambiar-correo" required autocomplete="off">
+                    </div>
+                    <div class="campo-cambiar">
+                        <label>Teléfono <small>(solo números)</small></label>
+                        <input type="text" name="telefono" id="cambiar-telefono" pattern="[0-9]+" autocomplete="off">
+                    </div>
+                    <div class="campo-cambiar">
+                        <label>Nueva contraseña <small>(solo números, mínimo 6 — deja vacío para NO cambiarla)</small></label>
+                        <input type="password" name="contrasena" id="cambiar-contrasena" pattern="[0-9]+" minlength="6" placeholder="Solo si quieres cambiarla" autocomplete="new-password">
+                    </div>
+                </div>
+                <div class="modal-cambiar-pie">
+                    <button type="button" class="btn-cancelar-cambiar" onclick="cerrarModalCambiar()">Cancelar</button>
+                    <button type="submit" class="btn-guardar-cambiar">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let urlEliminar = '';
+        function confirmarEliminar(event, enlace) {
+            event.preventDefault();
+            urlEliminar = enlace;
+            document.getElementById('modalConfirmacion').classList.add('activo');
+        }
+        function cerrarConfirmacion() {
+            document.getElementById('modalConfirmacion').classList.remove('activo');
+            urlEliminar = '';
+        }
+        function cerrarConfirmacionFuera(event) {
+            if (event.target.id === 'modalConfirmacion') cerrarConfirmacion();
+        }
+        function ejecutarEliminacion() {
+            if (urlEliminar) {
+                window.location.href = urlEliminar;
+            }
+        }
+
+        /* ✅ NUEVO: FUNCIONES MODAL CAMBIAR ADMINISTRADOR */
+        function abrirModalCambiar(boton) {
+            document.getElementById('cambiar-id').value = boton.dataset.id;
+            document.getElementById('cambiar-nombre').value = boton.dataset.nombre;
+            document.getElementById('cambiar-correo').value = boton.dataset.correo;
+            document.getElementById('cambiar-telefono').value = boton.dataset.telefono;
+            document.getElementById('cambiar-contrasena').value = '';
+            document.getElementById('modalCambiar').classList.add('activo');
+        }
+        function cerrarModalCambiar() {
+            document.getElementById('modalCambiar').classList.remove('activo');
+        }
+        function cerrarModalCambiarFuera(event) {
+            if (event.target.id === 'modalCambiar') cerrarModalCambiar();
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                cerrarConfirmacion();
+                cerrarModalCambiar();
+            }
+        });
+        function alternarMenu() {
+            const area = document.getElementById('areaUsuario');
+            area.classList.toggle('abierto');
+        }
+        document.addEventListener('click', function(event) {
+            const area = document.getElementById('areaUsuario');
+            if (!area.contains(event.target)) {
+                area.classList.remove('abierto');
+            }
+        });
+    </script>
+</body>
+</html>

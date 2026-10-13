@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar contraseña - InventLook</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
+        body { min-height: 100vh; display: flex; }
+        .lado-izquierdo {
+            flex: 1;
+            background: linear-gradient(135deg, #1E5F8C 0%, #0F3B2E 100%);
+            color: white;
+            display: flex; flex-direction: column; justify-content: center;
+            padding: 60px 50px; position: relative;
+        }
+        .cabecera-logo {
+            position: absolute; top: 40px; left: 40px;
+            display: flex; align-items: center; gap: 14px;
+        }
+        .logo-il {
+            width: 52px; height: 52px;
+            background: #60A5D1;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 22px;
+            background-image: url('/img/logo-principal.png.png');
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            color: transparent; font-size: 0;
+        }
+        .nombre-proyecto { font-size: 26px; font-weight: 700; letter-spacing: 0.5px; }
+        .megacolegio-derecha {
+            position: absolute; top: 40px; right: 40px;
+            width: 65px; height: auto; opacity: 0.95;
+        }
+        .frase-principal { font-size: 44px; font-weight: 700; line-height: 1.15; max-width: 500px; }
+        .lado-derecho {
+            flex: 1; background: #FFF;
+            padding: 80px 70px; display: flex; flex-direction: column; justify-content: center; max-width: 720px;
+        }
+        .etiqueta-recuperar { font-size: 14px; font-weight: 600; color: #64748B; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 10px; }
+        .titulo-form { font-size: 34px; font-weight: 700; color: #2B6CB0; margin-bottom: 15px; }
+        .subtitulo { font-size: 15px; color: #64748B; margin-bottom: 40px; line-height: 1.5; }
+        .mensaje { padding: 12px 16px; border-radius: 10px; margin-bottom: 25px; font-size: 15px; font-weight: 500; }
+        .mensaje.error { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
+        .mensaje.exito { background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
+        .campo { margin-bottom: 28px; display: flex; flex-direction: column; gap: 10px; }
+        .campo label { font-weight: 600; color: #0F172A; font-size: 16px; }
+        .campo input { padding: 14px 18px; border: 1px solid #E2E8F0; border-radius: 10px; font-size: 16px; transition: all 0.3s; color: #334155; }
+        .campo input:focus { outline: none; border-color: #2B6CB0; box-shadow: 0 0 0 4px rgba(43,108,176,0.15); }
+        .campo input::placeholder { color: #94A3B8; }
+        .btn-enviar { width: 100%; padding: 16px; background: #2B6CB0; color: white; border: none; border-radius: 12px; font-size: 17px; font-weight: 600; cursor: pointer; transition: background 0.3s; margin-bottom: 25px; }
+        .btn-enviar:hover { background: #2563A0; }
+        .enlace-volver { text-align: center; font-size: 15px; color: #64748B; }
+        .enlace-volver a { color: #2B6CB0; font-weight: 600; text-decoration: none; margin-left: 5px; }
+        .enlace-volver a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="lado-izquierdo">
+        <div class="cabecera-logo">
+            <div class="logo-il">IL</div>
+            <span class="nombre-proyecto">INVENTLOOK</span>
+        </div>
+        <img src="/img/megacolegio.png" alt="Logo Megacolegio" class="megacolegio-derecha">
+        <h1 class="frase-principal">Recupera tu acceso<br>en unos minutos.</h1>
+    </div>
+    <div class="lado-derecho">
+        <p class="etiqueta-recuperar">Recuperación de contraseña</p>
+        <h1 class="titulo-form">¿Olvidaste tu contraseña?</h1>
+        <p class="subtitulo">Ingresa el correo electrónico con el que te registraste y te enviaremos un código de 6 dígitos para restablecerla.</p>
+        <div th:if="${exito}" class="mensaje exito" th:text="${exito}"></div>
+        <div th:if="${error}" class="mensaje error" th:text="${error}"></div>
+        <form th:action="@{/enviar-codigo-recuperacion}" method="post" autocomplete="off">
+            <div class="campo">
+                <label>Correo electrónico</label>
+                <input type="email" name="correo" required placeholder="tu.correo@ejemplo.com" autocomplete="off">
+            </div>
+            <button type="submit" class="btn-enviar">Enviar código de recuperación</button>
+        </form>
+        <div class="enlace-volver">← <a href="/login">Volver al inicio de sesión</a></div>
+    </div>
+</body>
+</html>

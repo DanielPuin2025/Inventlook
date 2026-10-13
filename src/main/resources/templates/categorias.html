@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categorías - InventLook</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
+        body { background: #F8FAFC; display: flex; min-height: 100vh; color: #0F172A; }
+        .barra-lateral {
+            width: 240px; min-width: 240px;
+            background: linear-gradient(180deg, #1E5F8C 0%, #2B6CB0 100%);
+            color: white; padding: 24px 16px;
+            display: flex; flex-direction: column;
+            position: fixed; height: 100vh;
+        }
+        .logo-menu { display: flex; align-items: center; gap: 12px; padding-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,0.15); margin-bottom: 20px; }
+        .logo-il-menu {
+            width: 40px; height: 40px; background: white; color: #1E5F8C; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px;
+            background-image: url('/img/logo-principal.png.png');
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            color: transparent; font-size: 0;
+        }
+        .texto-logo-menu strong { font-size: 18px; display: block; letter-spacing: 0.5px; }
+        .texto-logo-menu span { font-size: 10px; opacity: 0.8; letter-spacing: 1px; }
+        .opcion-menu { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; color: white; text-decoration: none; font-size: 15px; margin-bottom: 6px; opacity: 0.9; }
+        .opcion-menu:hover { background: rgba(255,255,255,0.15); opacity: 1; }
+        .opcion-menu.activa { background: rgba(255,255,255,0.2); border-left: 3px solid white; font-weight: 600; opacity: 1; }
+        .icono-img {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+            flex-shrink: 0;
+        }
+        .contenido-principal { margin-left: 240px; flex: 1; display: flex; flex-direction: column; }
+        .barra-superior {
+            display: flex; justify-content: flex-end; align-items: center; gap: 24px;
+            background: white; padding: 18px 32px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .usuario-superior {
+            display: flex; align-items: center; gap: 12px; position: relative;
+            cursor: pointer; padding: 6px 10px; border-radius: 12px;
+            transition: background 0.2s ease;
+        }
+        .usuario-superior:hover { background: #F1F5F9; }
+        .datos-usuario {
+            display: flex; flex-direction: column;
+            text-align: right;
+            line-height: 1.3;
+        }
+        .datos-usuario strong {
+            font-size: 14px; text-transform: capitalize;
+            color: #0F172A; font-weight: 600;
+        }
+        .datos-usuario span {
+            font-size: 11px; color: #64748B;
+            text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500;
+        }
+        .avatar-usuario {
+            width: 42px; height: 42px;
+            background: linear-gradient(135deg, #2B6CB0 0%, #1E5F8C 100%); color: white;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 14px; flex-shrink: 0;
+        }
+        
+        .menu-usuario {
+            position: absolute; top: calc(100% + 10px); right: 0;
+            background: #374151;
+            border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            padding: 8px; min-width: 180px; display: none; z-index: 999; border: 1px solid #4B5563;
+        }
+        .usuario-superior.abierto .menu-usuario { display: block; }
+        .menu-usuario a {
+            display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+            color: #FFFFFF;
+            text-decoration: none; font-size: 14px; font-weight: 500;
+            border-radius: 8px; transition: background 0.15s ease;
+        }
+        .menu-usuario a:hover { background: #4B5563; }
+        
+        .area-trabajo { padding: 32px; }
+        .encabezado-seccion {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 28px; flex-wrap: wrap; gap: 12px;
+        }
+        .titulo h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+        .titulo p { color: #64748B; font-size: 15px; }
+        .aviso-total {
+            display: inline-block;
+            padding: 6px 14px;
+            background: #DBEAFE;
+            color: #1E40AF;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .btn-agregar {
+            padding: 10px 20px; background: #BFDBFE; color: #1E40AF;
+            border: none; border-radius: 10px; font-size: 14px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s ease;
+        }
+        .btn-agregar:hover { background: #93C5FD; }
+        .grid-categorias {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; margin-top: 20px;
+        }
+        .tarjeta-categoria {
+            background: white; border: 1px solid #E2E8F0; border-radius: 14px;
+            padding: 20px; display: flex; align-items: center; gap: 16px;
+            cursor: pointer; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            text-decoration: none; color: #0F172A; position: relative;
+        }
+        .tarjeta-categoria:hover {
+            transform: translateY(-3px); box-shadow: 0 8px 20px rgba(30,95,140,0.12); border-color: #2B6CB0;
+        }
+        .inicial-categoria {
+            width: 48px; height: 48px; border-radius: 12px;
+            background-image: url('/img/sobrefoto.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            flex-shrink: 0;
+        }
+        .info-categoria { flex: 1; }
+        .info-categoria strong { display: block; font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+        .info-categoria span { font-size: 13px; color: #64748B; }
+        .btn-borrar-tarjeta {
+            position: absolute; top: 12px; right: 12px; width: 28px; height: 28px;
+            border: none; background: #FEE2E2; color: #DC2626; border-radius: 50%;
+            font-size: 14px; cursor: pointer; display: none; align-items: center; justify-content: center; transition: all 0.2s ease;
+        }
+        .tarjeta-categoria:hover .btn-borrar-tarjeta { display: flex; }
+        .btn-borrar-tarjeta:hover { background: #FECACA; transform: scale(1.1); }
+
+        /* =============================================
+           ✅ ESTILOS COMUNES DE LOS CUADRITOS
+           ============================================= */
+        .fondo-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+        }
+        .fondo-modal.activo { display: flex; }
+        .modal-cuadro {
+            background: #374151;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            overflow: hidden;
+            animation: modalAparecer 0.25s ease;
+        }
+        @keyframes modalAparecer {
+            from { opacity: 0; transform: translateY(-20px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .modal-cuerpo {
+            padding: 32px 28px 24px;
+            text-align: center;
+        }
+        .modal-cuerpo h3 {
+            color: #FFFFFF;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .modal-cuerpo p {
+            color: #D1D5DB;
+            font-size: 14px;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+        .modal-cuerpo label {
+            display: block;
+            text-align: left;
+            color: #FFFFFF;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .modal-cuerpo input {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            background: #F8FAFC;
+            color: #0F172A;
+            margin-bottom: 8px;
+        }
+        .modal-cuerpo input:focus { outline: none; box-shadow: 0 0 0 3px rgba(255,255,255,0.2); }
+        .modal-botones {
+            display: flex;
+            gap: 12px;
+            padding: 0 28px 28px;
+        }
+        .btn-cancelar {
+            flex: 1;
+            padding: 12px;
+            background: #DC2626;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-cancelar:hover { background: #B91C1C; }
+        .btn-guardar {
+            flex: 1;
+            padding: 12px;
+            background: #16A34A;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-guardar:hover { background: #15803D; }
+    </style>
+</head>
+<body>
+    <aside class="barra-lateral">
+        <div class="logo-menu">
+            <div class="logo-il-menu">IL</div>
+            <div class="texto-logo-menu">
+                <strong>INVENTLOOK</strong>
+                <span>MERCA MAX</span>
+            </div>
+        </div>
+        <a href="/dashboard" class="opcion-menu">
+            <img src="/img/menu.png" alt="Menú" class="icono-img">
+            Menú Principal
+        </a>
+        <a href="/productos" class="opcion-menu">
+            <img src="/img/productos.png" alt="Productos" class="icono-img">
+            Productos
+        </a>
+        <a href="/categorias" class="opcion-menu activa">
+            <img src="/img/categorias.png" alt="Categorías" class="icono-img">
+            Categorías
+        </a>
+        <a href="/movimientos" class="opcion-menu">
+            <img src="/img/movimientos.png" alt="Movimientos" class="icono-img">
+            Movimientos
+        </a>
+        <a href="/alertas" class="opcion-menu">
+            <img src="/img/alertas.png" alt="Alertas" class="icono-img">
+            Alertas
+        </a>
+        <a href="/cuentas" class="opcion-menu" th:if="${session.rolUsuario == 'ADMINISTRADOR'}">
+            <img src="/img/icono-usuario.png" alt="Cuentas" class="icono-img">
+            Cuentas
+        </a>
+        <a href="/registro" class="opcion-menu" th:if="${session.rolUsuario == 'ADMINISTRADOR'}">
+            <img src="/img/registro.png" alt="Registro" class="icono-img">
+            Registro
+        </a>
+    </aside>
+    <main class="contenido-principal">
+        <header class="barra-superior">
+            <div class="usuario-superior" id="areaUsuario" onclick="alternarMenu()">
+                <div class="datos-usuario">
+                    <strong th:text="${session.nombreUsuario}">Usuario</strong>
+                    <span th:text="${session.rolUsuario}">USUARIO</span>
+                </div>
+                <div class="avatar-usuario" th:text="${session.nombreUsuario != null ? #strings.substring(#strings.toUpperCase(session.nombreUsuario), 0, 2) : 'US'}">DA</div>
+                <div class="menu-usuario" id="menuUsuario">
+                    <a href="/logout">Cerrar sesión</a>
+                </div>
+            </div>
+        </header>
+        <section class="area-trabajo">
+            <div class="encabezado-seccion">
+                <div class="titulo">
+                    <div class="aviso-total">
+                        📊 Categorías cargadas: <span th:text="${totalCategorias}">0</span>
+                    </div>
+                    <h1>Categorías</h1>
+                    <p>Organiza los productos de Merca Max por categoría.</p>
+                </div>
+                <button th:if="${session.rolUsuario == 'ADMINISTRADOR'}" class="btn-agregar" onclick="abrirAgregarCategoria()">+ Agregar categoría</button>
+            </div>
+            <div class="grid-categorias">
+                <a th:each="cat : ${categorias}"
+                   th:href="@{/productos-por-categoria/{id}(id=${cat.idCategoria})}"
+                   class="tarjeta-categoria">
+                    <div class="inicial-categoria"></div>
+                    <div class="info-categoria">
+                        <strong th:text="${cat.nombreCategoria}">Sin nombre</strong>
+                    </div>
+                    <th:block th:if="${session.rolUsuario == 'ADMINISTRADOR'}">
+                        <button class="btn-borrar-tarjeta"
+                                th:onclick="|borrarCategoria(${cat.idCategoria})|"
+                                title="Eliminar esta categoría">×</button>
+                    </th:block>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- ✅ CUADRITO: AGREGAR CATEGORÍA -->
+    <div class="fondo-modal" id="modalAgregar" onclick="cerrarAgregarFuera(event)">
+        <div class="modal-cuadro">
+            <form id="formAgregarCat" th:action="'/guardar-categoria'" method="post">
+                <div class="modal-cuerpo">
+                    <h3>Agregar Nueva Categoría</h3>
+                    <label for="nombreCategoria">Nombre de la Categoría *</label>
+                    <input type="text" id="nombreCategoria" name="nombreCategoria" required placeholder="Ej: Abarrotes, Lácteos, Limpieza...">
+                </div>
+                <div class="modal-botones">
+                    <button type="button" class="btn-cancelar" onclick="cerrarAgregarCategoria()">Cancelar</button>
+                    <button type="submit" class="btn-guardar">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ✅ CUADRITO: CONFIRMACIÓN DE ELIMINACIÓN -->
+    <div class="fondo-modal" id="modalEliminar" onclick="cerrarEliminarFuera(event)">
+        <div class="modal-cuadro">
+            <div class="modal-cuerpo">
+                <h3>¿Deseas eliminar esta categoría?</h3>
+                <p>Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-botones">
+                <button class="btn-cancelar" onclick="cerrarEliminar()">Cancelar</button>
+                <button class="btn-guardar" onclick="ejecutarEliminacion()">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =============================================
+        // ✅ FUNCIONES PARA AGREGAR CATEGORÍA
+        // =============================================
+        function abrirAgregarCategoria() {
+            document.getElementById('modalAgregar').classList.add('activo');
+            document.getElementById('nombreCategoria').value = '';
+        }
+        function cerrarAgregarCategoria() {
+            document.getElementById('modalAgregar').classList.remove('activo');
+        }
+        function cerrarAgregarFuera(event) {
+            if (event.target.id === 'modalAgregar') cerrarAgregarCategoria();
+        }
+
+        // =============================================
+        // ✅ FUNCIONES PARA ELIMINAR CATEGORÍA
+        // =============================================
+        let urlEliminacion = '';
+        function borrarCategoria(idCategoria) {
+            event.preventDefault();
+            event.stopPropagation();
+            urlEliminacion = "/eliminar-categoria/" + idCategoria;
+            document.getElementById('modalEliminar').classList.add('activo');
+        }
+        function cerrarEliminar() {
+            document.getElementById('modalEliminar').classList.remove('activo');
+            urlEliminacion = '';
+        }
+        function cerrarEliminarFuera(event) {
+            if (event.target.id === 'modalEliminar') cerrarEliminar();
+        }
+        function ejecutarEliminacion() {
+            if (urlEliminacion) {
+                window.location.href = urlEliminacion;
+            }
+        }
+
+        // =============================================
+        // ✅ TECLA ESC PARA CERRAR CUALQUIER CUADRO
+        // =============================================
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                cerrarAgregarCategoria();
+                cerrarEliminar();
+            }
+        });
+
+        // ✅ Menú de usuario
+        function alternarMenu() {
+            const area = document.getElementById('areaUsuario');
+            area.classList.toggle('abierto');
+        }
+        document.addEventListener('click', function(event) {
+            const area = document.getElementById('areaUsuario');
+            if (!area.contains(event.target)) {
+                area.classList.remove('abierto');
+            }
+        });
+    </script>
+</body>
+</html>
