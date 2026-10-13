@@ -1,0 +1,7 @@
+.git
+.vscode
+target
+HELP.md
+.env
+.env.*
+!.env.example
