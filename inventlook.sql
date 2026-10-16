@@ -55,7 +55,7 @@ CREATE TABLE `codigo_recuperacion` (
   `usado` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_correo_codigo` (`correo`,`codigo`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -64,7 +64,7 @@ CREATE TABLE `codigo_recuperacion` (
 
 LOCK TABLES `codigo_recuperacion` WRITE;
 /*!40000 ALTER TABLE `codigo_recuperacion` DISABLE KEYS */;
-INSERT INTO `codigo_recuperacion` VALUES (1,'noireliteofficial@gmail.com','088442','2026-09-02 16:15:49',1),(2,'noireliteofficial@gmail.com','427383','2026-09-14 15:25:01',1),(3,'noireliteofficial@gmail.com','333954','2026-09-28 18:16:53',0);
+INSERT INTO `codigo_recuperacion` VALUES (1,'noireliteofficial@gmail.com','088442','2026-09-02 16:15:49',1),(2,'noireliteofficial@gmail.com','427383','2026-09-14 15:25:01',1),(3,'noireliteofficial@gmail.com','333954','2026-09-28 18:16:53',1),(4,'noireliteofficial@gmail.com','755619','2026-10-14 16:43:23',0);
 /*!40000 ALTER TABLE `codigo_recuperacion` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -91,7 +91,7 @@ CREATE TABLE `movimientos` (
   KEY `idx_usuario` (`id_usuario`),
   CONSTRAINT `fk_movimientos_producto` FOREIGN KEY (`id_producto`) REFERENCES `producto` (`id_producto`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `movimientos_ibfk_2` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id_usuario`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=77 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=79 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -100,7 +100,7 @@ CREATE TABLE `movimientos` (
 
 LOCK TABLES `movimientos` WRITE;
 /*!40000 ALTER TABLE `movimientos` DISABLE KEYS */;
-INSERT INTO `movimientos` VALUES (69,'AJUSTE',24,'2026-09-24 06:41:41','Se disminuyo el stock en 24 unidades',20,3,'Arroz diana 500g'),(70,'AJUSTE',13,'2026-09-24 06:42:29','Se aumento el stock en 13 unidades',20,3,'Arroz diana 500g'),(71,'AJUSTE',13,'2026-09-24 10:26:13','Se disminuyo el stock en 13 unidades',20,3,'Arroz diana 500g'),(72,'ENTRADA',80,'2026-09-28 18:07:59','Producto agregado al inventario',32,3,'Bolsa de agua  6l'),(73,'ENTRADA',134,'2026-09-28 18:08:33','Producto agregado al inventario',33,3,'Tomate de arbol'),(74,'ENTRADA',68,'2026-10-01 15:52:21','Producto agregado al inventario',34,3,'Aguila - 15l'),(75,'ENTRADA',0,'2026-10-01 15:52:44','Producto agregado al inventario',NULL,3,'poker, 500g'),(76,'SALIDA',0,'2026-10-01 15:52:51','Producto eliminado del inventario',NULL,3,'poker, 500g');
+INSERT INTO `movimientos` VALUES (77,'ENTRADA',52,'2026-10-14 16:14:02','Producto agregado al inventario',NULL,3,'ACEITE DE SOYA'),(78,'SALIDA',52,'2026-10-14 16:14:11','Producto eliminado del inventario',NULL,3,'ACEITE DE SOYA');
 /*!40000 ALTER TABLE `movimientos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -127,7 +127,7 @@ CREATE TABLE `producto` (
   KEY `fk_nueva_sin_conflicto` (`id_categoria`),
   CONSTRAINT `fk_nueva_sin_conflicto` FOREIGN KEY (`id_categoria`) REFERENCES `categorias` (`id_categoria`) ON DELETE SET NULL,
   CONSTRAINT `producto_ibfk_2` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id_usuario`)
-) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -159,7 +159,7 @@ CREATE TABLE `usuario` (
   PRIMARY KEY (`id_usuario`),
   UNIQUE KEY `correo` (`correo`),
   UNIQUE KEY `uk_telefono` (`telefono`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -181,4 +181,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-10-05 12:53:44
+-- Dump completed on 2026-10-14 16:43:37
