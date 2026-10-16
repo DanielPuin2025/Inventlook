@@ -11,7 +11,6 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class UsuarioController {
-
     private final UsuarioService usuarioService;
 
     public UsuarioController(UsuarioService usuarioService) {
@@ -30,31 +29,32 @@ public class UsuarioController {
         return "redirect:/login";
     }
 
-    // ✅ INICIO DE SESION CON NUMERO DE TELEFONO + CONTRASENA
+    // ✅ INICIO DE SESION CON NUMERO DE TELEFONO + CONTRASEÑA
     @PostMapping("/iniciar-sesion")
     public String iniciarSesion(
-        @RequestParam String telefono,
-        @RequestParam String contrasena,
-        Model model,
-        HttpSession sesion) {
-
+            @RequestParam String telefono,
+            @RequestParam String contrasena,
+            Model model,
+            HttpSession sesion) {
+        
         boolean accesoValido = usuarioService.validarInicioSesion(telefono, contrasena);
-
         if (accesoValido) {
             Usuario usuarioLogueado = usuarioService.buscarPorTelefono(telefono);
+            
             sesion.setAttribute("idUsuario", usuarioLogueado.getIdUsuario());
             sesion.setAttribute("nombreUsuario", usuarioLogueado.getNombre());
             sesion.setAttribute("rolUsuario", usuarioLogueado.getRol());
             sesion.setAttribute("telefonoUsuario", telefono);
+            
             return "redirect:/dashboard";
         } else {
-            model.addAttribute("mensaje", "Error: Numero de telefono o contraseña incorrectos");
+            model.addAttribute("mensaje", "Error: Número de teléfono o contraseña incorrectos");
             return "login";
         }
     }
 
     // =============================================
-    // GESTION DE CUENTAS (SOLO ADMINISTRADOR)
+    // GESTIÓN DE CUENTAS (SOLO ADMINISTRADOR)
     // =============================================
 
     // Ver lista de cuentas
@@ -72,78 +72,59 @@ public class UsuarioController {
     // Eliminar una cuenta
     @GetMapping("/cuentas/eliminar/{id}")
     public String eliminarCuenta(@PathVariable Integer id,
-                                 HttpSession sesion,
-                                 RedirectAttributes ra) {
+                                  HttpSession sesion,
+                                  RedirectAttributes ra) {
         String rol = (String) sesion.getAttribute("rolUsuario");
         if (rol == null || !rol.equals("ADMINISTRADOR")) {
             ra.addFlashAttribute("error", "Acceso exclusivo para Administradores");
             return "redirect:/dashboard";
         }
+        
         Integer miId = (Integer) sesion.getAttribute("idUsuario");
         if (id.equals(miId)) {
             ra.addFlashAttribute("error", "No puedes borrar tu propia cuenta");
             return "redirect:/cuentas";
         }
+        
         usuarioService.eliminarUsuario(id);
         ra.addFlashAttribute("exito", "Cuenta eliminada correctamente — ya no tiene acceso al sistema");
         return "redirect:/cuentas";
     }
 
-    // ✅ NUEVO: ACTUALIZAR DATOS DEL ADMINISTRADOR
-    @PostMapping("/cuentas/actualizar")
-    public String actualizarCuenta(
+    // ✅ ACTUALIZAR DATOS DEL ADMINISTRADOR
+    @PostMapping("/cuentas/actualizar-administrador")
+    public String actualizarAdministrador(
             @RequestParam Integer idUsuario,
             @RequestParam String nombre,
             @RequestParam String correo,
-            @RequestParam(required = false) String telefono,
-            @RequestParam(required = false) String contrasena,
+            @RequestParam String telefono,
+            @RequestParam(required = false) String nuevaContrasena,
             HttpSession sesion,
             RedirectAttributes ra) {
-
-        // 1. Verificar que sea administrador
+        
+        // Verificar que sea administrador
         String rol = (String) sesion.getAttribute("rolUsuario");
         if (rol == null || !rol.equals("ADMINISTRADOR")) {
-            ra.addFlashAttribute("error", "Acceso exclusivo para Administradores");
+            ra.addFlashAttribute("error", "Acceso denegado");
             return "redirect:/dashboard";
         }
-
+        
         try {
-            // 2. Limpiar teléfono: solo números
-            if (telefono != null && !telefono.isBlank()) {
-                telefono = telefono.replaceAll("[^0-9]", "");
-            } else {
-                telefono = null;
-            }
-
-            // 3. Validar contraseña si se envió (solo números, mínimo 6)
-            if (contrasena != null && !contrasena.isBlank()) {
-                if (!contrasena.matches("[0-9]+")) {
-                    ra.addFlashAttribute("error", "❌ Error: La contraseña solo puede contener números (0-9).");
-                    return "redirect:/cuentas";
-                }
-                if (contrasena.length() < 6) {
-                    ra.addFlashAttribute("error", "❌ Error: La contraseña debe tener mínimo 6 números.");
-                    return "redirect:/cuentas";
-                }
-            } else {
-                contrasena = null; // No se cambia la contraseña
-            }
-
-            // 4. Actualizar el usuario
-            usuarioService.actualizarUsuario(idUsuario, nombre.trim(), correo.trim(), telefono, contrasena);
-
-            // 5. Si se editó a sí mismo, actualizar la sesión
+            // Llamar al servicio para actualizar
+            usuarioService.actualizarAdministrador(idUsuario, nombre, correo, telefono, nuevaContrasena);
+            
+            // Si el administrador se cambia su propio nombre, actualizarlo en la sesión
             Integer miId = (Integer) sesion.getAttribute("idUsuario");
             if (idUsuario.equals(miId)) {
-                sesion.setAttribute("nombreUsuario", nombre.trim());
+                sesion.setAttribute("nombreUsuario", nombre);
             }
-
-            ra.addFlashAttribute("exito", "✅ Datos del administrador actualizados correctamente");
-            return "redirect:/cuentas";
-
-        } catch (RuntimeException e) {
-            ra.addFlashAttribute("error", "❌ Error: " + e.getMessage());
-            return "redirect:/cuentas";
+            
+            ra.addFlashAttribute("exito", "Datos actualizados correctamente ✅");
+        } 
+        catch (RuntimeException e) {
+            ra.addFlashAttribute("error", e.getMessage());
         }
+        
+        return "redirect:/cuentas";
     }
 }

@@ -217,6 +217,8 @@ public class ProductoController {
         String nombreUsuario = (String) sesion.getAttribute("nombreUsuario");
         List<Producto> listaFiltrada = productoService.listarPorCategoria(idCategoria);
         Categoria catSeleccionada = categoriaService.buscarPorId(idCategoria);
+        model.addAttribute("listaCategorias", categoriaService.listarTodas());
+        model.addAttribute("productoNuevo", new Producto());
         model.addAttribute("nombreUsuario", nombreUsuario);
         model.addAttribute("iniciales", nombreUsuario.substring(0, 1).toUpperCase());
         model.addAttribute("productos", listaFiltrada);

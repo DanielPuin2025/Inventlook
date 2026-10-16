@@ -32,7 +32,23 @@
         .subtitulo {
             color: #64748B;
             font-size: 14px;
-            margin-bottom: 28px;
+            margin-bottom: 20px;
+        }
+        .mensaje {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .mensaje.error {
+            background: #FEF2F2;
+            color: #991B1B;
+            border: 1px solid #FECACA;
+        }
+        .mensaje.exito {
+            background: #ECFDF5;
+            color: #065F46;
+            border: 1px solid #A7F3D0;
         }
         .form-group { margin-bottom: 18px; }
         label {
@@ -52,19 +68,7 @@
             transition: border 0.2s;
         }
         input:focus { border-color: #1E5F8C; box-shadow: 0 0 0 3px rgba(30,95,140,0.1); }
-
-        /* ✅ ESTILOS PARA MENSAJES DE ERROR */
-        .input-error { border-color: #DC2626 !important; box-shadow: 0 0 0 3px rgba(220,38,38,0.1) !important; }
-        .input-valido { border-color: #16A34A !important; }
-        .mensaje-error-campo {
-            color: #DC2626;
-            font-size: 12.5px;
-            margin-top: 6px;
-            display: none;
-            font-weight: 500;
-        }
-        .mensaje-error-campo.visible { display: block; }
-
+        input:invalid { border-color: #F87171; }
         .botones {
             display: flex;
             gap: 12px;
@@ -95,10 +99,6 @@
             transition: background 0.2s;
         }
         .btn-guardar:hover { background: #1D4ED8; }
-        .btn-guardar:disabled {
-            background: #93C5FD;
-            cursor: not-allowed;
-        }
         .enlace-iniciar {
             text-align: center;
             margin-top: 24px;
@@ -118,159 +118,38 @@
         <h1>REGISTRO DE USUARIO</h1>
         <p class="subtitulo">Completa la información para ingresar al sistema</p>
 
-        <!-- ✅ Mensaje de error general del servidor -->
-        <div th:if="${error}" style="background:#FEF2F2; color:#991B1B; padding:12px 16px; border-radius:8px; margin-bottom:18px; font-size:14px; border:1px solid #FECACA;" th:text="${error}"></div>
+        <!-- Mensajes de error / éxito -->
+        <div th:if="${error}" class="mensaje error" th:text="${error}"></div>
+        <div th:if="${exito}" class="mensaje exito" th:text="${exito}"></div>
 
-        <form th:action="@{/registro}" method="post" autocomplete="off" id="formRegistro" novalidate>
+        <form th:action="@{/registro}" method="post" autocomplete="off">
             <div class="form-group">
                 <label>Nombre</label>
-                <input type="text" name="nombre" id="nombre" placeholder="Ingresa el nombre completo" required autocomplete="off">
+                <input type="text" name="nombre" placeholder="Ingresa el nombre completo" required autocomplete="off">
             </div>
             <div class="form-group">
                 <label>Correo</label>
-                <input type="email" name="correo" id="correo" placeholder="Correo electrónico" required autocomplete="off">
+                <input type="email" name="correo" placeholder="Correo electrónico" required autocomplete="off">
             </div>
-
-            <!-- ✅ CONTRASEÑA: SOLO NÚMEROS -->
             <div class="form-group">
-                <label>Crear Contraseña <small style="color:#64748B; font-weight:400;">(solo números, mínimo 6)</small></label>
-                <input type="password" name="contrasena" id="contrasena" 
-                       placeholder="Ej: 123456" 
-                       required 
-                       minlength="6"
-                       pattern="[0-9]+"
-                       title="Solo se permiten números del 0 al 9, sin letras ni símbolos"
-                       autocomplete="new-password"
-                       inputmode="numeric">
-                <div class="mensaje-error-campo" id="errorContrasena">
-                    ⚠ La contraseña solo puede contener números (0-9), sin letras, puntos ni símbolos. Mínimo 6 dígitos.
-                </div>
+                <label>Crear Contraseña</label>
+                <input type="password" name="contrasena" placeholder="Solo números, mínimo 6" required 
+                       minlength="6" pattern="[0-9]+" title="La contraseña debe ser solo números y mínimo 6 dígitos"
+                       autocomplete="new-password">
             </div>
-
-            <!-- ✅ TELÉFONO: SOLO NÚMEROS -->
             <div class="form-group">
-                <label>Teléfono <small style="color:#64748B; font-weight:400;">(solo números)</small></label>
-                <input type="text" name="telefono" id="telefono" 
-                       placeholder="Ej: 3101234567" 
-                       pattern="[0-9]+"
-                       title="Solo se permiten números"
-                       autocomplete="off"
-                       inputmode="numeric">
-                <div class="mensaje-error-campo" id="errorTelefono">
-                    ⚠ El teléfono solo puede contener números (0-9).
-                </div>
+                <label>Teléfono</label>
+                <input type="text" name="telefono" placeholder="Ingresa el número de teléfono" required 
+                       pattern="[0-9]+" title="Solo números" autocomplete="off">
             </div>
-
             <div class="botones">
-                <button type="button" class="btn-cancelar" onclick="window.location.href='/dashboard'">Cancelar</button>
-                <button type="submit" class="btn-guardar" id="btnGuardar">Guardar usuario</button>
+                <button type="button" class="btn-cancelar" onclick="window.location.href='/cuentas'">Cancelar</button>
+                <button type="submit" class="btn-guardar">Guardar usuario</button>
             </div>
         </form>
         <div class="enlace-iniciar">
             ¿Ya tienes una cuenta? <a href="/login">Iniciar sesión →</a>
         </div>
     </div>
-
-    <script>
-        // ✅ VALIDACIÓN EN TIEMPO REAL
-        const inputContrasena = document.getElementById('contrasena');
-        const errorContrasena = document.getElementById('errorContrasena');
-        const inputTelefono = document.getElementById('telefono');
-        const errorTelefono = document.getElementById('errorTelefono');
-        const btnGuardar = document.getElementById('btnGuardar');
-        const formRegistro = document.getElementById('formRegistro');
-
-        // Solo números
-        const soloNumeros = /^[0-9]+$/;
-
-        function validarContrasena() {
-            const valor = inputContrasena.value.trim();
-            if (valor === '') {
-                inputContrasena.classList.remove('input-error', 'input-valido');
-                errorContrasena.classList.remove('visible');
-                return true;
-            }
-            if (!soloNumeros.test(valor)) {
-                inputContrasena.classList.add('input-error');
-                inputContrasena.classList.remove('input-valido');
-                errorContrasena.classList.add('visible');
-                return false;
-            }
-            if (valor.length < 6) {
-                inputContrasena.classList.add('input-error');
-                inputContrasena.classList.remove('input-valido');
-                errorContrasena.textContent = '⚠ La contraseña debe tener mínimo 6 números.';
-                errorContrasena.classList.add('visible');
-                return false;
-            }
-            inputContrasena.classList.remove('input-error');
-            inputContrasena.classList.add('input-valido');
-            errorContrasena.classList.remove('visible');
-            errorContrasena.textContent = '⚠ La contraseña solo puede contener números (0-9), sin letras, puntos ni símbolos. Mínimo 6 dígitos.';
-            return true;
-        }
-
-        function validarTelefono() {
-            const valor = inputTelefono.value.trim();
-            if (valor === '') {
-                inputTelefono.classList.remove('input-error', 'input-valido');
-                errorTelefono.classList.remove('visible');
-                return true;
-            }
-            if (!soloNumeros.test(valor)) {
-                inputTelefono.classList.add('input-error');
-                inputTelefono.classList.remove('input-valido');
-                errorTelefono.classList.add('visible');
-                return false;
-            }
-            inputTelefono.classList.remove('input-error');
-            inputTelefono.classList.add('input-valido');
-            errorTelefono.classList.remove('visible');
-            return true;
-        }
-
-        inputContrasena.addEventListener('input', validarContrasena);
-        inputTelefono.addEventListener('input', validarTelefono);
-
-        // Bloquear letras directamente en el teclado
-        inputContrasena.addEventListener('keypress', function(e) {
-            if (!/[0-9]/.test(e.key)) {
-                e.preventDefault();
-                errorContrasena.classList.add('visible');
-                inputContrasena.classList.add('input-error');
-                setTimeout(() => {
-                    if (soloNumeros.test(inputContrasena.value) && inputContrasena.value.length >= 6) {
-                        errorContrasena.classList.remove('visible');
-                        inputContrasena.classList.remove('input-error');
-                    }
-                }, 1500);
-            }
-        });
-
-        inputTelefono.addEventListener('keypress', function(e) {
-            if (!/[0-9]/.test(e.key)) {
-                e.preventDefault();
-                errorTelefono.classList.add('visible');
-                inputTelefono.classList.add('input-error');
-                setTimeout(() => {
-                    if (soloNumeros.test(inputTelefono.value)) {
-                        errorTelefono.classList.remove('visible');
-                        inputTelefono.classList.remove('input-error');
-                    }
-                }, 1500);
-            }
-        });
-
-        // Validar al enviar el formulario
-        formRegistro.addEventListener('submit', function(e) {
-            const contraOk = validarContrasena();
-            const telOk = validarTelefono();
-            if (!contraOk || !telOk) {
-                e.preventDefault();
-                if (!contraOk) inputContrasena.focus();
-                else inputTelefono.focus();
-            }
-        });
-    </script>
 </body>
 </html>

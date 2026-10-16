@@ -774,10 +774,10 @@
                                 <div class="con-tooltip">
                                     <span class="estado"
                                           th:classappend="${prod.estado == 'Optimo'} ? 'optimo' :
-                                              (${prod.estado == 'Stock bajo'} ? 'bajo' : 'agotado')">
+                                            (${prod.estado == 'Stock bajo'} ? 'bajo' : 'agotado')">
                                         <span class="punto"
                                               th:classappend="${prod.estado == 'Optimo'} ? 'optimo' :
-                                                  (${prod.estado == 'Stock bajo'} ? 'bajo' : 'agotado')"></span>
+                                                (${prod.estado == 'Stock bajo'} ? 'bajo' : 'agotado')"></span>
                                         <span th:text="${prod.estado}">Optimo</span>
                                     </span>
                                     <span class="tooltip-texto" th:if="${prod.estado == 'Stock bajo'}">
@@ -820,7 +820,8 @@
                     <div class="icono">[ ]</div>
                     <h3 th:if="${filtroActivo}">No hay productos en esta categoria</h3>
                     <h3 th:unless="${filtroActivo}">Aun no tienes productos registrados</h3>
-                    <p th:if="${filtroActivo}">Prueba con otra categoria o <a href="/agregar-producto" style="color:#1E40AF;font-weight:600">agrega uno nuevo aqui</a>.</p>
+                    <!-- ✅ CORREGIDO: Se quitó el enlace "agrega uno nuevo aquí" -->
+                    <p th:if="${filtroActivo}">Prueba con otra categoria.</p>
                     <p th:unless="${filtroActivo}">Empieza agregando tu primer producto <a href="/agregar-producto" style="color:#1E40AF;font-weight:600">haciendo clic aqui</a>.</p>
                 </div>
                 <div class="pie-tabla" th:if="${productos != null and !productos.isEmpty()}">

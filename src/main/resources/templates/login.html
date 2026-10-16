@@ -7,6 +7,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
         body { min-height: 100vh; display: flex; }
+        
         /* LADO IZQUIERDO */
         .lado-izquierdo {
             flex: 1;
@@ -35,36 +36,79 @@
             width: 65px; height: auto; opacity: 0.95;
         }
         .frase-principal { font-size: 44px; font-weight: 700; line-height: 1.15; max-width: 500px; }
-        /* ✅ PIE DE PÁGINA IZQUIERDA — Derechos de autor */
-        .pie-izquierdo {
+        
+        /* ==== PIE DE PÁGINA — DERECHOS Y BOTÓN VER ==== */
+        .pie-lado-izquierdo {
             position: absolute; bottom: 30px; left: 50px; right: 50px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255,255,255,0.15);
+            padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);
         }
-        .copyright {
-            font-size: 13px;
-            opacity: 0.85;
-            margin-bottom: 8px;
-        }
-        .elaborado-por {
-            font-size: 13px;
-            opacity: 0.9;
-            display: flex; align-items: center; gap: 10px;
-        }
-        .btn-ver {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: none;
-            padding: 4px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            cursor: pointer;
+        .texto-derechos { font-size: 13px; opacity: 0.8; margin-bottom: 10px; }
+        .fila-elaborado { display: flex; align-items: center; gap: 12px; }
+        .btn-ver-autores {
+            padding: 6px 16px; background: rgba(255,255,255,0.2); color: white;
+            border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;
             transition: background 0.2s;
         }
-        .btn-ver:hover {
-            background: rgba(255,255,255,0.3);
+        .btn-ver-autores:hover { background: rgba(255,255,255,0.3); }
+
+        /* ==== VENTANA EMERGENTE — IGUAL A TU DISEÑO ==== */
+        .fondo-modal-autores {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(3px);
+            display: none; align-items: center; justify-content: center;
+            z-index: 9999; padding: 20px;
         }
-        /* LADO DERECHO */
+        .fondo-modal-autores.activo { display: flex; }
+        
+        .modal-autores {
+            background: white; border-radius: 16px;
+            max-width: 520px; width: 100%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+            overflow: hidden;
+            animation: aparecer 0.3s ease;
+        }
+        @keyframes aparecer {
+            from { opacity: 0; transform: translateY(-15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* CABECERA AZUL */
+        .cabecera-modal {
+            background: linear-gradient(90deg, #2B6CB0, #1E5F8C);
+            color: white; padding: 16px 24px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .cabecera-modal h2 { font-size: 18px; font-weight: 600; }
+        .btn-cerrar {
+            background: rgba(255,255,255,0.2); border: none;
+            color: white; width: 32px; height: 32px; border-radius: 50%;
+            font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+        .btn-cerrar:hover { background: rgba(255,255,255,0.35); }
+        
+        /* CONTENIDO */
+        .contenido-modal { padding: 24px; background: #F8FAFC; }
+        .integrante {
+            display: flex; align-items: center; gap: 16px;
+            background: white; border-radius: 12px; padding: 16px;
+            margin-bottom: 12px; border: 1px solid #E2E8F0;
+        }
+        .foto-integrante {
+            width: 60px; height: 60px; border-radius: 50%;
+            object-fit: cover; border: 2px solid #2B6CB0;
+            flex-shrink: 0;
+        }
+        .datos-integrante h3 { 
+            font-size: 15px; font-weight: 600; 
+            color: #1E293B; margin-bottom: 2px;
+        }
+        .datos-integrante p { 
+            font-size: 13px; color: #64748B;
+        }
+
+        /* LADO DERECHO — IGUAL QUE TENÍAS */
         .lado-derecho {
             flex: 1; background: #FFF;
             padding: 80px 70px; display: flex; flex-direction: column; justify-content: center; max-width: 720px;
@@ -87,78 +131,6 @@
         .btn-ingresar:hover { background: #2563A0; }
         .caja-nota { background: #EBF8FF; border: 1px solid #BEE3F8; border-radius: 12px; padding: 18px 20px; font-size: 14.5px; color: #2C5282; line-height: 1.5; }
         .caja-nota strong { color: #1A365D; }
-        /* ✅ VENTANA EMERGENTE — INTEGRANTES */
-        .fondo-integrantes {
-            position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(4px);
-            display: none; align-items: center; justify-content: center;
-            z-index: 9999; padding: 20px;
-        }
-        .fondo-integrantes.activo { display: flex; }
-        .modal-integrantes {
-            background: white;
-            border-radius: 20px;
-            width: 100%; max-width: 520px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-            animation: aparecer 0.3s ease;
-        }
-        @keyframes aparecer {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .modal-cabecera {
-            background: linear-gradient(135deg, #1E5F8C 0%, #2B6CB0 100%);
-            color: white;
-            padding: 20px 24px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .modal-cabecera h2 { font-size: 20px; font-weight: 700; }
-        .btn-cerrar {
-            background: rgba(255,255,255,0.2);
-            border: none; color: white;
-            width: 32px; height: 32px; border-radius: 50%;
-            font-size: 18px; cursor: pointer;
-        }
-        .btn-cerrar:hover { background: rgba(255,255,255,0.3); }
-        .modal-cuerpo { padding: 28px 24px; }
-        .integrante {
-            display: flex; align-items: center; gap: 16px;
-            padding: 16px;
-            background: #F8FAFC;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            border: 1px solid #E2E8F0;
-        }
-        .foto-integrante {
-            width: 64px; height: 64px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid #2B6CB0;
-            flex-shrink: 0;
-        }
-        .foto-iniciales {
-            width: 64px; height: 64px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #2B6CB0 0%, #1E5F8C 100%);
-            color: white;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 22px; font-weight: 700;
-            border: 3px solid #2B6CB0;
-            flex-shrink: 0;
-        }
-        .datos-integrante h3 {
-            font-size: 15px;
-            font-weight: 600;
-            color: #0F172A;
-            margin-bottom: 2px;
-        }
-        .datos-integrante p {
-            font-size: 13px;
-            color: #64748B;
-        }
     </style>
 </head>
 <body>
@@ -169,15 +141,55 @@
         </div>
         <img src="/img/megacolegio.png" alt="Logo Megacolegio" class="megacolegio-derecha">
         <h1 class="frase-principal">El control de inventario<br>de Merca Max, en un<br>solo lugar.</h1>
-        <!-- ✅ PIE DE PÁGINA: Derechos de autor + Ver integrantes -->
-        <div class="pie-izquierdo">
-            <p class="copyright">© 2026 InventLook — Merca Max. Todos los derechos reservados.</p>
-            <p class="elaborado-por">
-                Elaborado por:
-                <button class="btn-ver" onclick="abrirIntegrantes()">VER</button>
-            </p>
+
+        <!-- ==== PIE — DERECHOS Y BOTÓN VER ==== -->
+        <div class="pie-lado-izquierdo">
+            <p class="texto-derechos">© 2026 InventLook — Merca Max. Todos los derechos reservados.</p>
+            <div class="fila-elaborado">
+                <span style="font-size:14px; opacity:0.9;">Elaborado por:</span>
+                <button class="btn-ver-autores" onclick="abrirModalAutores()">VER</button>
+            </div>
         </div>
     </div>
+
+    <!-- ==== VENTANA EQUIPO DE DESARROLLO — IGUAL A TU IMAGEN ==== -->
+    <div class="fondo-modal-autores" id="modalAutores" onclick="cerrarModalFuera(event)">
+        <div class="modal-autores">
+            <!-- Cabecera azul -->
+            <div class="cabecera-modal">
+                <h2>Equipo de Desarrollo</h2>
+                <button class="btn-cerrar" onclick="cerrarModalAutores()">×</button>
+            </div>
+            
+            <!-- Contenido -->
+            <div class="contenido-modal">
+                <div class="integrante">
+                    <img src="/img/santos.jpeg" alt="Santos David Achagua" class="foto-integrante">
+                    <div class="datos-integrante">
+                        <h3>SANTOS DAVID ACHAGUA</h3>
+                        <p>Desarrollador</p>
+                    </div>
+                </div>
+                
+                <div class="integrante">
+                    <img src="/img/chila.jpeg" alt="Daniel Eduardo Chila" class="foto-integrante">
+                    <div class="datos-integrante">
+                        <h3>DANIEL EDUARDO CHILA</h3>
+                        <p>Desarrollador</p>
+                    </div>
+                </div>
+                
+                <div class="integrante">
+                    <img src="/img/lidny.jpeg" alt="Lidny Jasbleidy Sanchez" class="foto-integrante">
+                    <div class="datos-integrante">
+                        <h3>LIDNY JASBLEIDY SANCHEZ</h3>
+                        <p>Desarrolladora</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="lado-derecho">
         <p class="etiqueta-admin">Acceso Merca Max</p>
         <h1 class="titulo-login">Iniciar sesion</h1>
@@ -189,7 +201,8 @@
             </div>
             <div class="campo">
                 <label>Contraseña</label>
-                <input type="password" name="contrasena" required placeholder="Solo numeros" minlength="6" pattern="[0-9]+" title="Tu contraseña debe ser solo numeros" autocomplete="new-password">
+                <input type="password" name="contrasena" required placeholder="Solo numeros" 
+                       minlength="6" pattern="[0-9]+" title="La contraseña debe contener solo números" autocomplete="new-password">
             </div>
             <div class="fila-recuperar">
                 <span>¿Olvidaste tu contraseña?</span>
@@ -198,63 +211,27 @@
             <button type="submit" class="btn-ingresar">Iniciar sesion</button>
         </form>
         <div class="caja-nota">
-            <strong>Nota:</strong> verifica que tus datos esten asignados por el administrador del sistema antes de ingresar.
+            <strong>Nota:</strong> verifica que tus datos estén asignados por el administrador del sistema antes de ingresar.
         </div>
     </div>
-    <!-- ✅ VENTANA EMERGENTE: Integrantes -->
-    <div class="fondo-integrantes" id="modalIntegrantes" onclick="cerrarIntegrantesFuera(event)">
-        <div class="modal-integrantes">
-            <div class="modal-cabecera">
-                <h2>Equipo de Desarrollo</h2>
-                <button class="btn-cerrar" onclick="cerrarIntegrantes()">×</button>
-            </div>
-            <div class="modal-cuerpo">
-                <!-- Santos David Achagua — con foto real -->
-                <div class="integrante">
-                    <img src="/img/santos.jpeg" alt="Santos David Achagua" class="foto-integrante" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div class="foto-iniciales" style="display:none;">SA</div>
-                    <div class="datos-integrante">
-                        <h3>SANTOS DAVID ACHAGUA</h3>
-                        <p>Desarrollador</p>
-                    </div>
-                </div>
-                <!-- Daniel Eduardo Chila — con foto real -->
-                <div class="integrante">
-                    <img src="/img/chila.jpeg" alt="Daniel Eduardo Chila" class="foto-integrante" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div class="foto-iniciales" style="display:none;">DC</div>
-                    <div class="datos-integrante">
-                        <h3>DANIEL EDUARDO CHILA</h3>
-                        <p>Desarrollador</p>
-                    </div>
-                </div>
-                <!-- ✅ Lidny Jasbleidy Sanchez — CON FOTO REAL -->
-                <div class="integrante">
-                    <img src="/img/lidny.jpeg" alt="Lidny Jasbleidy Sanchez" class="foto-integrante" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div class="foto-iniciales" style="display:none;">LS</div>
-                    <div class="datos-integrante">
-                        <h3>LIDNY JASBLEIDY SANCHEZ</h3>
-                        <p>Desarrolladora</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+
     <script>
-        // ✅ Abrir y cerrar ventana de integrantes
-        function abrirIntegrantes() {
-            document.getElementById('modalIntegrantes').classList.add('activo');
+        function abrirModalAutores() {
+            document.getElementById('modalAutores').classList.add('activo');
         }
-        function cerrarIntegrantes() {
-            document.getElementById('modalIntegrantes').classList.remove('activo');
+        function cerrarModalAutores() {
+            document.getElementById('modalAutores').classList.remove('activo');
         }
-        function cerrarIntegrantesFuera(event) {
-            if (event.target.id === 'modalIntegrantes') {
-                cerrarIntegrantes();
+        function cerrarModalFuera(event) {
+            if (event.target.id === 'modalAutores') {
+                cerrarModalAutores();
             }
         }
         // Cerrar con tecla ESC
         document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') cerrarIntegrantes();
+            if (event.key === 'Escape') {
+                cerrarModalAutores();
+            }
         });
     </script>
 </body>

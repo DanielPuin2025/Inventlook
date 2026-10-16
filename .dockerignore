@@ -5,3 +5,5 @@ HELP.md
 .env
 .env.*
 !.env.example
+INVENTLOOK-*
+*.zip
